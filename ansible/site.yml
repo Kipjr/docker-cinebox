@@ -1,0 +1,81 @@
+- name: Install CineBox
+  hosts: webservers
+  user: root
+  become: yes
+  gather_facts: True
+
+
+  handlers:
+
+    - name: reload systemctl
+      command: systemctl daemon-reload
+
+    - name: restart-transmission
+      command: systemctl restart transmission-daemon
+
+    - name: restart-couchpotato
+      command: systemctl restart couchpotato
+
+    - name: restart-radarr
+      command: systemctl restart radarr
+
+    - name: restart-openpyn
+      command: systemctl restart openpyn
+
+    - name: restart-sickchill
+      command: systemctl restart sickchill
+
+
+  vars_prompt:
+
+    - name: nordvpn_u
+      prompt: "NordVPN Username?"
+      private: no
+
+    - name: nordvpn_p
+      prompt: "NordVPN Password?"
+      private: yes  
+    
+    - name: transmission_p
+      prompt: "Please set your Transmission web PW"
+      private: yes
+
+    - name: couchpotato_p
+      prompt: "Please set your Couchpotato web PW"
+      private: yes
+
+    - name: sickchill_p
+      prompt: "Please set your SickChill web PW"
+      private: yes
+      
+# - name: create a mysql user with a random password
+  # mysql_user:
+    # name: "{{ client }}"
+    # password: "{{ lookup('password', 'credentials/' + client + '/' + tier + '/' + role + '/mysqlpassword length=15') }}"
+    # priv: "{{ client }}_{{ tier }}_{{ role }}.*:ALL"     
+      
+  pre_tasks:
+    - debug: var=hostvars[inventory_hostname]['ansible_enp0s3']['ipv4']['address']
+    - assert:
+        that: 
+          - nordvpn_u | length > 1
+          - "'@' in nordvpn_u"
+          - "'.' in nordvpn_u"
+          - nordvpn_p | length > 1
+          - transmission_p | length > 1
+          - couchpotato_p | length > 1
+          - sickchill_p | length > 1
+        quiet: true
+        msg: "Incorrect parameters"
+
+      
+  roles:
+    - cinebox
+    - system
+    - nginx
+    - openpyn
+    - radarr
+    - sickchill
+    - couchpotato
+    - transmission
+    

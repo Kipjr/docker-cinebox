@@ -1,0 +1,72 @@
+- name: Install Openpyn via Git
+  git:
+    repo: https://github.com/jotyGill/openpyn-nordvpn.git
+    clone: yes
+    dest: /home/{{ansible_user}}/cinebox/openpyn-nordvpn
+    
+- name: Install list of APT packages
+  apt: 
+    pkg:
+    - openvpn
+    - python-setuptools
+    - python3-setuptools
+    - python3-pip
+    - unzip
+    - wget
+
+- name: Copy requirements
+  copy:
+    src: requirements.txt
+    dest: /tmp/requirements.txt
+    mode: 0644
+    owner: root
+    group: root
+
+#Install list of PIP packages
+- pip: 
+    requirements: /tmp/requirements.txt   
+    executable: pip3
+
+- name: Install openpyn
+  command: "python3 -m pip install --upgrade /home/{{ansible_user}}/cinebox/openpyn-nordvpn/"
+  
+- name: Copy config
+  copy:
+    src: credentials
+    dest: /usr/local/lib/python3.6/dist-packages/openpyn/credentials
+    mode: 0600
+    owner: root
+    group: root
+    
+- name: Configure credentials 1/2
+  replace:
+    path: /usr/local/lib/python3.6/dist-packages/openpyn/credentials
+    regexp: 'USERNAME'
+    replace: '{{nordvpn_u}}'
+
+- name: Configure credentials 2/2
+  replace:
+    path: /usr/local/lib/python3.6/dist-packages/openpyn/credentials
+    regexp: 'PASSWORD'
+    replace: '{{nordvpn_p}}'
+
+- name: Exploit ignore init when /var/log/openpyn is made.
+  file:
+    path: "/var/log/openpyn"
+    state: directory
+    owner: "{{ansible_user}}"
+    group: "{{ansible_user}}"
+    
+    
+# - name: "Configure openpyn init"
+  # expect:
+    # command: "openpyn --init"
+    # responses:
+      # 'for NordVPN, i.e youremail@yourmail.com:': "{{nordvpn_u}}"
+      # 'password for NordVPN:': "{{nordvpn_p}}"
+      # 'Default(Just Press Enter) is, uk :': "be"
+    
+- name: Remove installation folder
+  file:
+    path: /home/{{ansible_user}}/cinebox/openpyn-nordvpn
+    state: absent

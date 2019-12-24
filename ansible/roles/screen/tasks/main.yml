@@ -1,0 +1,5 @@
+- name: Installs screen
+  apt:
+    name: screen
+    state: present
+    update_cache: yes

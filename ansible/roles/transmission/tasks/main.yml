@@ -1,0 +1,38 @@
+      
+- name: Installs transmission-daemon
+  apt:
+    name: transmission-daemon
+    state: present
+    update_cache: yes
+    
+- name: Stop Transmission
+  command: systemctl stop transmission-daemon
+    
+- name: Installs tranmission config
+  copy:
+    src: settings.json
+    dest:  /etc/transmission-daemon/settings.json
+    mode: 0644
+    owner: debian-transmission
+    group: debian-transmission
+    
+- name: Configure whitelisted subnet
+  replace:
+    path: /etc/transmission-daemon/settings.json
+    regexp: 'TRANSMISSION_WHITELIST'
+    replace: '{{transmission_subnet}}'
+    
+- name: Configure whitelisted subnet
+  replace:
+    path: /etc/transmission-daemon/settings.json
+    regexp: 'TRANSMISSION_PASSWORD'
+    replace: '{{transmission_p}}'
+
+- name: Configure path
+  replace:
+    path: /etc/transmission-daemon/settings.json
+    regexp: 'USERNAME'
+    replace: '{{ansible_user}}'
+
+- name: Disable transmission-daemon at boot
+  command: systemctl disable transmission-daemon

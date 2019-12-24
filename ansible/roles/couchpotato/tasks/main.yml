@@ -1,0 +1,89 @@
+- name: Create Couchpotato user
+  user:
+    name: couchpotato
+    state: present
+    shell: /usr/sbin/nologin       
+    system: yes
+    
+- name: Install git-core
+  apt:
+    name: git-core
+    state: present
+    update_cache: yes
+
+#- Install (pyopenssl) python package.
+- pip:
+    name: pyopenssl
+    executable: pip3
+    
+#- Install (lxml) python package.
+- pip:
+    name: lxml
+    executable: pip3
+
+- name: Install Couchpotato via Git
+  git:
+    repo: https://github.com/CouchPotato/CouchPotatoServer
+    dest: /opt/couchpotatoserver
+    version: develop
+    
+- name: Create couchpotato data directory
+  file:
+    path: "/home/couchpotato/.couchpotato"
+    state: directory
+    owner: "couchpotato"
+    group: "couchpotato"
+    
+- name: Recursively change ownership of a CP directory
+  file:
+    path: /opt/couchpotatoserver
+    state: directory
+    recurse: yes
+    owner: couchpotato
+    group: couchpotato
+
+
+
+- name: Copy settings Couchpotato
+  copy:
+    src: settings.conf
+    dest:  /home/couchpotato/.couchpotato/settings.conf
+    mode: 0644
+    owner: couchpotato
+    group: couchpotato
+
+
+- name: Copy boot script Couchpotato
+  copy:
+    src: couchpotato.service
+    dest:  /etc/systemd/system/couchpotato.service
+    mode: 0644
+    owner: root
+    group: root    
+
+- name: Copy defaults Couchpotato
+  copy:
+    src: couchpotato
+    dest:  /etc/default/couchpotato
+    mode: 0644
+    owner: root
+    group: root  
+    
+
+    
+- name: Configure path in config
+  replace:
+    path: /home/couchpotato/.couchpotato/settings.conf
+    regexp: 'USERNAME'
+    replace: '{{ansible_user}}'
+
+- name: Configure password in config 
+  replace:
+    path: /home/couchpotato/.couchpotato/settings.conf
+    regexp: 'password = '
+    replace: 'password = {{ couchpotato_p | hash("md5") }}'
+    
+- name: Disable Couchpotato at boot
+  command: systemctl disable couchpotato
+     
+

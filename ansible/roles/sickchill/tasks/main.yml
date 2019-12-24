@@ -1,0 +1,56 @@
+- name: Install list of APT packages
+  apt: 
+    pkg:
+    - unrar-free
+    - git-core
+    - openssl
+    - libssl-dev
+    - python2.7
+    - python-pexpect
+    state: present
+
+    
+- name: Copy Installation script Sickchill
+  copy:
+    src: debian-ubuntu-install.sh
+    dest:  /tmp/debian-ubuntu-install.sh
+    mode: 0774
+    owner: root
+    group: root  
+    
+- name: Start Sickchill install
+  command: /bin/bash -c "/tmp/debian-ubuntu-install.sh"
+  ignore_errors: yes
+
+- name: Wait until the /opt/sickchill is present before continuing
+  wait_for:
+    path: /opt/sickchill  
+
+- name: Installs SickChill config
+  copy:
+    src: config.ini
+    dest:  /opt/sickchill/config.ini
+    mode: 0664
+    owner: sickchill
+    group: sickchill
+
+- name: Configure HOST config SickChill
+  replace:
+    path: /opt/sickchill/config.ini
+    regexp: 'web_host = 192.168.1.100'
+    replace: 'web_host = {{ansible_enp0s3.ipv4.address}}'
+
+- name: Configure Password config SickChill
+  replace:
+    path: /opt/sickchill/config.ini
+    regexp: 'SICKCHILL_PASSWORD'
+    replace: '{{sickchill_p}}'
+
+- name: Configure HOME config SickChill
+  replace:
+    path: /opt/sickchill/config.ini
+    regexp: 'USERNAME'
+    replace: '{{ansible_user}}'
+
+- name: Disable Sickchill at boot
+  command: systemctl disable sickchill

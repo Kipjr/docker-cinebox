@@ -1,0 +1,37 @@
+- name: add localhost to hosts
+  lineinfile:
+    path: /etc/hosts
+    line: '127.0.0.1    {{ansible_hostname}}'
+    insertbefore: BOF
+
+- name: Wait for sudo
+  become: yes
+  shell:  while sudo fuser /var/lib/dpkg/lock >/dev/null 2>&1; do sleep 5; done;
+
+- name: Perform system upgrade
+  apt:
+    upgrade: dist
+  tags:
+    - system-upgrade
+
+- name: Install list of APT packages
+  apt: 
+    pkg:
+    - screen
+    state: present
+    
+- name: Reboot host and wait for it
+  reboot:
+    msg: "Reboot initiated by Ansible"
+    connect_timeout: 5
+    reboot_timeout: 180
+    pre_reboot_delay: 0
+    post_reboot_delay: 60
+    test_command: whoami     
+
+
+- name: Clean up unused packages
+  apt:
+    autoremove: yes
+  tags:
+    - system-upgrade

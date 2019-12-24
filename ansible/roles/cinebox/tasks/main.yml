@@ -1,0 +1,73 @@
+- pause:
+    prompt: "Install will take 10 minutes. Additional config of Radarr needs to be done by the user. Wait 1 min or press 'CTRL+C' + 'C' to continue"
+    minutes: 1
+
+- name: Create Cinebox base directory
+  file:
+    path: "/home/{{ansible_user}}/cinebox"
+    state: directory
+    owner: "{{ansible_user}}"
+    group: "{{ansible_user}}"
+
+- name: Create Cinebox file directory
+  file:
+    path: "/home/{{ansible_user}}/cinebox_files"
+    state: directory
+    owner: "{{ansible_user}}"
+    group: "{{ansible_user}}"
+    
+- name: Copy initialization script
+  copy:
+    owner: "{{ansible_user}}"
+    group: "{{ansible_user}}"
+    src: start_vpn.sh
+    dest: /home/{{ansible_user}}/cinebox/start_vpn.sh
+    force: yes
+    mode: 0700
+    
+- name: Copy vpn script
+  copy:
+    owner: "{{ansible_user}}"
+    group: "{{ansible_user}}"
+    src: vpn.sh
+    dest: /home/{{ansible_user}}/cinebox/vpn.sh
+    force: yes
+    mode: 0700
+    
+
+- name: Copy ipchecker script
+  copy:
+    owner: "{{ansible_user}}"
+    group: "{{ansible_user}}"
+    src: whatismyip.sh
+    dest: /home/{{ansible_user}}/cinebox/whatismyip.sh
+    force: yes
+    mode: 0700
+    
+- name: Configure Cinebox start_vpn script
+  replace:
+    path: /home/{{ansible_user}}/cinebox/start_vpn.sh
+    regexp: 'USERNAME'
+    replace: '{{ansible_user}}'
+    
+- name: Configure Cinebox whatismyip script
+  replace:
+    path: /home/{{ansible_user}}/cinebox/whatismyip.sh
+    regexp: 'USERNAME'
+    replace: '{{ansible_user}}'
+
+- name: Creates an Cron entry at "@reboot" for startup VPN
+  cron:
+    name: "cron start vpn"
+    special_time: reboot
+    job: "/home/{{ansible_user}}/cinebox/start_vpn.sh 2>&1 >> /home/{{ansible_user}}/cinebox/boot_start_vpn.log"
+
+- name:  Creates an Cron entry at "@reboot" for security IP-check
+  cron:
+    name: check WAN IP
+    special_time: hourly
+    job: "/home/{{ansible_user}}/cinebox/whatismyip.sh"
+
+    
+
+

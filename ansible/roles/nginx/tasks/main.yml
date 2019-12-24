@@ -1,0 +1,49 @@
+- name: Installs Nginx
+  apt:
+    name: nginx
+    state: present
+    update_cache: yes
+
+- name: Stop Nginx
+  command: systemctl stop nginx
+   
+- name: Cleans up default config
+  file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+
+- name: Installs nginx config
+  copy:
+    src: nginx.conf
+    dest:  /etc/nginx/sites-enabled/nginx.conf
+    mode: 0644
+    owner: root
+    group: root
+    
+- name: Create Cinebox web directory
+  file:
+    path: "/var/www/cinebox"
+    state: directory
+    owner: "root"
+    group: "root"   
+    
+- name: Installs webpages
+  copy:
+    src: "{{ item }}"
+    dest:  /var/www/cinebox
+    mode: 0644
+    owner: root
+    group: root
+  with_items:
+    - favicon.ico
+    - index.html
+    - style.css
+   
+- name: Configure hostname for web
+  replace:
+    path: /var/www/cinebox/index.html
+    regexp: 'HOST.DOMAIN'
+    replace: '{{ansible_fqdn}}'
+
+- name: Start Nginx
+  command: systemctl start nginx

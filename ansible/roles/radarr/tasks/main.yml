@@ -1,0 +1,89 @@
+- name: Create Radarr user
+  user:
+    name: radarr
+    state: present
+    shell: /usr/sbin/nologin       
+    system: yes  
+      
+- name: Add an apt key by id from a keyserver
+  apt_key:
+    keyserver: hkp://keyserver.ubuntu.com:80
+    id: 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
+    
+- name: Add Mono to apt
+  command: echo "deb https://download.mono-project.com/repo/ubuntu stable-bionic main" | sudo tee /etc/apt/sources.list.d/mono-official-stable.list
+
+- name: Update repo
+  apt:
+    update_cache: yes
+
+- name: Install list of APT packages
+  apt: 
+    pkg:
+    - curl
+    - mediainfo
+    - gnupg
+    - ca-certificates
+    - mono-complete
+    - sqlite3 
+    - libmono-cil-dev
+    state: present
+
+- name: Copy getRadarr script
+  copy:
+    src: getRadarr.sh
+    dest: /tmp/getRadarr.sh
+    mode: 0770
+    owner: root
+    group: root
+    
+- name: Get Radarr via Git
+  command: /tmp/getRadarr.sh
+  ignore_errors: yes  
+    
+- name: Extract Radarr.tar.gz
+  unarchive: 
+    src: /tmp/Radarr.tar.gz
+    remote_src: yes
+    dest: /opt/
+
+
+- name: Ensure folders exist in app dir
+  file:
+    path: "/home/Radarr/.config/Radarr/"
+    state: directory
+    owner: radarr
+    group: radarr
+
+
+- name: Recursively change ownership of Radarr directory
+  file:
+    path: /opt/Radarr
+    state: directory
+    recurse: yes
+    owner: radarr
+    group: radarr
+
+
+- name: Copy config
+  copy:
+    src: config.xml
+    dest: /home/Radarr/.config/Radarr/config.xml
+    mode: 0644
+    owner: radarr
+    group: radarr
+
+
+
+- name: Configure autostart Radarr
+  copy:
+    src: radarr.service
+    dest:  /etc/systemd/system/radarr.service
+    mode: 0644
+    owner: root
+    group: root
+    
+    
+- name: Disable radarr at boot
+  command: systemctl disable radarr
+  
