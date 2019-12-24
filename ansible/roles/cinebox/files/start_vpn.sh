@@ -19,10 +19,10 @@ if ! [ -d "/usr/local/lib/python3.6/dist-packages/openpyn" ]; then
 	exit 1
 fi
 
-if ! [ -d " /etc/transmission-daemon" ]; then
-	echo "Transmission not installed"
-	exit 1
-fi
+#if ! [ -f "/usr/bin/transmission" ]; then
+#	echo "Transmission not installed"
+#	exit 1
+#fi
 
 echo "Create screen and start vpn.sh"
 /usr/bin/screen -dmS vpn /home/USERNAME/cinebox/vpn.sh
