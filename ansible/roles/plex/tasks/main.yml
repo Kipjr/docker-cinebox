@@ -1,0 +1,27 @@
+- name: Create Plex user
+  user:
+    name: plex
+    state: present
+    shell: /usr/sbin/nologin       
+    system: yes
+
+- name: Get plex (x64) for Ubuntu
+  get_url:
+    url: https://downloads.plex.tv/plex-media-server-new/1.18.4.2171-ac2afe5f8/debian/plexmediaserver_1.18.4.2171-ac2afe5f8_amd64.deb
+    dest: /tmp/plex.deb
+    mode: '0440'
+
+
+- name: Start Plex install
+  command: dpkg -i /tmp/plex.deb
+  ignore_errors: yes
+
+
+#- name: Installs Plex config
+#  copy:
+#    src: preferences.xml
+#    dest:  /DEST
+#    mode: 0664
+#    owner: plex
+#    group: plex
+
