@@ -48,6 +48,10 @@
       prompt: "Please set your SickChill web PW"
       private: yes
       
+    - name: use_plex
+      prompt: "Install Plex Mediaserver? (Y/N)"
+      private: no
+      
 # - name: create a mysql user with a random password
   # mysql_user:
     # name: "{{ client }}"
@@ -65,6 +69,8 @@
           - transmission_p | length > 1
           - couchpotato_p | length > 1
           - sickchill_p | length > 1
+          - use_plex == "Y" or use_plex == "N"
+          
         quiet: true
         msg: "Incorrect parameters"
 
@@ -80,3 +86,5 @@
     - plex
     - transmission
     
+#Future
+# https://github.com/makelinux/ubuntu-server-auto-install/blob/master/ubuntu-server-auto-install

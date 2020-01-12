@@ -38,7 +38,14 @@
     - favicon.ico
     - index.html
     - style.css
-   
+ 
+- name: Inserting Plex button for webpage
+  lineinfile:
+    path: /var/www/cinebox/index.html
+    line: <a target="_blank" href="http://HOST.DOMAIN:32400/web" class="button button-orange" >Plex</a><br>
+    insertafter: <a target="_blank" href="http://HOST.DOMAIN:9091/" class="button button-red" >Transmission</a><br>
+  when: use_plex == "Y"
+
 - name: Configure hostname for web
   replace:
     path: /var/www/cinebox/index.html

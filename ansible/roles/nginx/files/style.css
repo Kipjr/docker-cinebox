@@ -104,6 +104,24 @@ body {
   background-image: linear-gradient(to bottom, #126d0c, #20c016);
 }
 
+.button-orange {
+  text-shadow: 0 1px #72100d;
+  background-color: #cc7b19;
+  border-color: #936328 #724713 #492b08;
+}
+.button-orange:hover {
+  background-color: #e35b10;;
+}
+.button-orange:active {
+  text-shadow: 0 -1px #72100d;
+  background: #b61a15;
+  border-color: #936328 #724713 #492b08;
+  background-image: -webkit-linear-gradient(top, #925411, #e45e1b);
+  background-image: -moz-linear-gradient(top, #925411, #e45e1b);
+  background-image: -o-linear-gradient(top, #925411, #e45e1b);
+  background-image: linear-gradient(to bottom, #925411, #e45e1b);
+}
+
 .button-red {
   text-shadow: 0 1px #72100d;
   background-color: #cd1d18;
@@ -121,6 +139,7 @@ body {
   background-image: -o-linear-gradient(top, #921511, #e4201b);
   background-image: linear-gradient(to bottom, #921511, #e4201b);
 }
+
 .button-grey {
   text-shadow: 0 1px #2b665e;
   background-color: #768d87;
