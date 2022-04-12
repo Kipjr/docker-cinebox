@@ -1,6 +1,9 @@
 #!/bin/sh
 echo -----------------------------
 echo -n "WAN IP: " && echo "$(dig +short myip.opendns.com @resolver1.opendns.com)"
+echo -n ""
+curl "https://ipinfo.io"
+echo -n ""
 echo -n "LAN_0 IP: " && echo "$(ifconfig -a eth0 | grep -E 'inet|RX|TX')"
 echo -n "LAN_1 IP: " && echo "$(ifconfig -a eth1 | grep -E 'inet|RX|TX')"
 echo ----------------------------

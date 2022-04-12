@@ -1,10 +1,10 @@
 version: '3.9'
 
 #
-# Plex - 32400
-# Sickchill - 8081
-# Radar - 7878
-# Transmission - 9091
+# Plex - 32400 -> 9901
+# Transmission - 9091 -> 9902
+# Sickchill - 8081 -> 9903
+# Radar - 7878 -> 9904
 #
 
 secrets:
@@ -12,6 +12,8 @@ secrets:
     file: ./data/config/secrets/openvpn_user.cred
   openvpn_password:
     file: ./data/config/secrets/openvpn_password.cred
+  plex_claim:
+    file: ./data/config/secrets/plex_claim
 
 x-name:
  - &NAME 'cinebox'
@@ -40,8 +42,14 @@ services:
     <<: *default-template
     image: nginx:stable-alpine
     container_name: nginx
-    networks:
-      - net
+#    ports:
+#      - "80:80/tcp"
+    volumes:
+      - "./data/config/etc/nginx/cinebox/:/usr/share/nginx/html:ro"
+      #- "./data/config/etc/nginx/nginx.conf:/etc/nginx/nginx.conf:ro"
+      - "./data/config/etc/nginx/templates:/etc/nginx/templates"
+    network_mode: "service:gluetun"
+
     
   gluetun: 
     image: qmcgaw/gluetun
@@ -54,10 +62,15 @@ services:
     devices: 
       - /dev/net/tun:/dev/net/tun 
     ports: 
+      - 80:80/tcp
+      - 9900:8000/tcp
       - 9901:32400/tcp
       - 9902:9091/tcp
       - 9903:8081/tcp
       - 9904:7878/tcp
+      - 8888:8888/tcp # HTTP proxy
+      - 8388:8388/tcp # Shadowsocks
+      - 8388:8388/udp # Shadowsocks
     volumes: 
       - ./data/config/etc/gluetun:/gluetun 
     environment:
@@ -65,7 +78,10 @@ services:
       - VPN_SERVICE_PROVIDER=nordvpn 
       - VPN_TYPE=openvpn
       - SERVER_REGIONS=Belgium
+      - HEALTH_VPN_DURATION_ADDITION=30s
       - TZ=Europe/Amsterdam
+      - DOT=on
+      - DOT_PROVIDERS=cloudflare
     secrets:
       - source: openvpn_user
       - source: openvpn_password
@@ -74,7 +90,7 @@ services:
     container_name: debug
     build: ./test
     network_mode: "service:gluetun"
-    restart: no
+    restart: "no"
     stdin_open: true
     tty: true
     profiles:
@@ -140,7 +156,7 @@ services:
       - PGID=1000
       - VERSION=docker
       - UMASK_SET=022 #optional
-      - PLEX_CLAIM=claim-y9sp_dKHx1KRzyq_iGHo      
+      - PLEX_CLAIM=/run/secrets/plex_claim #https://plex.tv/claim
     network_mode: "service:gluetun"  
     stdin_open: true
     tty: true
@@ -148,3 +164,5 @@ services:
       - "./data/config/etc/plex:/config"
       - "./data/series:/tv"
       - "./data/movies:/movies"
+    secrets:
+      - source: plex_claim

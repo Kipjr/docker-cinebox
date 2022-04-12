@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0,maximum-scale=1.0, user-scalable=no">
+  <title>CineBox</title>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<script>
+function resolveip() {
+	var ip = document.getElementById("openvpn_ip").innerHTML;
+    http://ip-api.com/json/someIP?fields=country,city
+    var uri = "http://ip-api.com/json/" + ip + "?fields=country,city"
+    <!-- console.log(hostname) -->
+    <!-- console.log(uri) -->
+    let fetchData = {
+        method: 'GET',
+        headers: new Headers({
+            'Content-Type': 'application/json; charset=UTF-8'
+        })
+    }
+   fetch(uri,fetchData)
+    .then((response) => {
+      return response.json();
+    })
+    .then((data) => {
+    <!-- console.log(data) -->
+    document.getElementById("resolve_ip").innerHTML = data.country + "/" + data.city
+  })
+  .catch(function(error) {
+      console.log(error);
+    });
+}    
+
+
+
+
+function api(endp,key,div) {
+    const hostname = window.location.hostname
+    var uri = "http://" + hostname + "/v1/" + endp
+    <!-- console.log(hostname) -->
+    <!-- console.log(uri) -->
+    let fetchData = {
+        method: 'GET',
+        headers: new Headers({
+            'Content-Type': 'application/json; charset=UTF-8'
+        })
+    }
+   fetch(uri,fetchData)
+    .then((response) => {
+      return response.json();
+    })
+    .then((data) => {
+    console.log(data)
+    if(key==null){ var out = JSON.stringify(data) }
+    else { var out = data[key] }
+    document.getElementById(div).innerHTML = out;
+	if(endp == "publicip/ip") {
+		resolveip()
+	}
+  })
+  .catch(function(error) {
+      console.log(error);
+    });
+}    
+api("openvpn/status","status","openvpn_status")      
+api("publicip/ip","public_ip","openvpn_ip")
+      
+</script>
+
+  <div class="container">
+    <div>
+      <label for="openvpn_status" class="lbl">Status</label>
+      <div id="openvpn_status">&nbsp;</div>
+    </div>
+    <div>
+      <label for="openvpn_ip" class="lbl">IP</label>
+      <div id="openvpn_ip">&nbsp;</div>
+    </div>
+    <div>
+      <label for="resolve_ip" class="lbl">IP Info</label>
+      <div id="resolve_ip">&nbsp;</div>
+    </div>	
+    <a target="_blank" href="." class="button button-grey" onclick="javascript:event.target.port=9901">Plex</a><br>
+    <a target="_blank" href="." class="button button-red" onclick="javascript:event.target.port=9902">Transmission</a><br>
+    <a target="_blank" href="." class="button button-green" onclick="javascript:event.target.port=9903">Sickchill</a><br>
+    <a target="_blank" href="." class="button button-blue" onclick="javascript:event.target.port=9904">Radarr</a><br>
+    <br>
+	
+ <div class="wrap-collabsible">
+  <input id="collapsible" class="toggle" type="checkbox">
+  <label for="collapsible" class="lbl-toggle button button-grey ">Help</label>
+  <div class="collapsible-content">
+    <div class="content-inner">
+      <p>
+       At first boot, the Radarr password is unset. Please adjust it. Configuration between applications has to be done manually.	
+      See <a href="https://github.com/Kipjr/docker-cinebox">Github</a> for more info.
+	  </p>
+    </div>
+  </div>
+</div>
+  </div>
+</body>
+</html>

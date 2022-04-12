@@ -1,8 +1,39 @@
 # CineBox - Personal PVR with VPN
 
-Includes Gluetun, SickChill, Radarr & Transmission
+# CineBox
 
-### GlueTun
+Combined repo of Nginx, Gluetun, SickChill, Radarr & Transmission
+
+### Directory Structure:
+
+
+#### Data
+
+- data/movies
+- data/watch
+- data/series
+
+- data/downloads/incomplete
+- data/downloads/complete
+
+#### Credential storage
+- data/config/secrets
+
+#### Container Configuration storage
+- data/config/etc/nginx
+- data/config/etc/transmission
+- data/config/etc/plex
+- data/config/etc/radarr
+- data/config/etc/sickchill
+- data/config/etc/gluetun
+
+#### Test & Debug
+- test/Dockerfile
+- test/test.sh
+
+<hr>
+
+# GlueTun
 
 <i>[README.md](https://github.com/qdm12/gluetun/blob/master/README.md)</i>
 
@@ -39,14 +70,14 @@ using Go, OpenVPN or Wireguard, iptables, DNS over TLS, ShadowSocks and an HTTP 
 
 Go to the [Wiki](https://github.com/qdm12/gluetun/wiki)!
 
-### SickChill & Radarr & Transmission
+# SickChill & Radarr & Transmission
 
 Based on linuxserver/IMAGE:latest
 
-### nginx
+# nginx
 
 Simple webserver to connect to the internal services
 
-### Debug
+# Debug
 
 Simple Ubuntu Image to check your network & VPN configuration
