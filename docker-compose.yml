@@ -48,6 +48,7 @@ services:
       - "./data/config/etc/nginx/cinebox/:/usr/share/nginx/html:ro"
       #- "./data/config/etc/nginx/nginx.conf:/etc/nginx/nginx.conf:ro"
       - "./data/config/etc/nginx/templates:/etc/nginx/templates"
+      - "./data/logs/nginx:/var/log/nginx"
     network_mode: "service:gluetun"
 
     
@@ -63,11 +64,11 @@ services:
       - /dev/net/tun:/dev/net/tun 
     ports: 
       - 80:80/tcp
-      - 9900:8000/tcp
-      - 9901:32400/tcp
-      - 9902:9091/tcp
-      - 9903:8081/tcp
-      - 9904:7878/tcp
+#      - 9900:8000/tcp
+#      - 9901:32400/tcp
+#      - 9902:9091/tcp
+#      - 9903:8081/tcp
+#      - 9904:7878/tcp
       - 8888:8888/tcp # HTTP proxy
       - 8388:8388/tcp # Shadowsocks
       - 8388:8388/udp # Shadowsocks
@@ -77,7 +78,7 @@ services:
       # See https://github.com/qdm12/gluetun/wiki
       - VPN_SERVICE_PROVIDER=nordvpn 
       - VPN_TYPE=openvpn
-      - SERVER_REGIONS=Belgium
+      - SERVER_REGIONS=Germany
       - HEALTH_VPN_DURATION_ADDITION=30s
       - TZ=Europe/Amsterdam
       - DOT=on
