@@ -74,6 +74,8 @@ Go to the [Wiki](https://github.com/qdm12/gluetun/wiki)!
 
 Based on linuxserver/IMAGE:latest
 
+- Edit Radarr & Sickchill webroot to /{name_of_container}
+
 # nginx
 
 Simple webserver to connect to the internal services

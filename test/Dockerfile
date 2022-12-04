@@ -4,14 +4,12 @@ ENV TZ=Europe/Amsterdam
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 RUN echo "resolvconf resolvconf/linkify-resolvconf boolean false" | debconf-set-selections
 
-RUN apt-get update -y && apt-get upgrade -y && apt-get install -y \
+RUN apt-get update -y && apt-get install -y \
         bash \
         nano \
         curl \
         python3 \
         python3-pip \
-	python \
-        sudo \
         nginx \
         screen \
         net-tools \
