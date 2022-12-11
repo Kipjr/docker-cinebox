@@ -1,17 +1,3 @@
-#Must be set in the global scope see: 
-#https://forum.nginx.org/read.php?2,152294,152294 
-# Why this is important especially with Plex as it makes a lot of requests 
-#http://vincent.bernat.im/en/blog/2011-ssl-session-reuse-rfc5077.html / 
-#https://www.peterbe.com/plog/ssl_session_cache-ab
-# ssl_session_cache shared:SSL:10m;
-# ssl_session_timeout 10m;
-
-
-upstream plex_backend {
-	server 127.0.0.1:32400;
-	keepalive 32;
-}
-
 server {
     location ~ ^(/|/index.html|/favicon.ico|/style.css)$ {
         root   /usr/share/nginx/html;
@@ -19,14 +5,14 @@ server {
     }
 
     listen       80;
-    server_name  ${SERVERNAME} ;
+    server_name  localhost ;
 
     access_log  /var/log/nginx/host.access.log;
     error_log  /var/log/nginx/host.error.log  error;
 
     send_timeout 100m; 
-    resolver 8.8.4.4 8.8.8.8 valid=300s; 
-    resolver_timeout 10s;
+ #   resolver 8.8.4.4 8.8.8.8 valid=300s; 
+ #   resolver_timeout 10s;
     gzip on; 
     gzip_vary on; 
     gzip_min_length 1000; 
@@ -118,9 +104,8 @@ server {
 #    }
 
     location ~ ^/(web|media|identity) {
-        proxy_pass http://127.0.0.1:32400$request_uri;
+        proxy_pass http://localhost:32400 ;
 
-        proxy_set_header Host $host; 
         proxy_set_header Host $host; 
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; 
@@ -144,6 +129,9 @@ server {
     #
 
     location /v1 {
+        limit_except GET {
+            deny  all;
+        }
         proxy_pass         http://localhost:8000;
         proxy_redirect     off;
         proxy_set_header   Host $host;

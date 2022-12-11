@@ -9,81 +9,57 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<script>
-function resolveip() {
-	var ip = document.getElementById("openvpn_ip").innerHTML;
-    <!-- http://ip-api.com/json/someIP?fields=country,city -->
-    var uri = "http://ip-api.com/json/" + ip + "?fields=country,city"
-    <!-- console.log(hostname) -->
-    <!-- console.log(uri) -->
-    let fetchData = {
-        method: 'GET',
-        headers: new Headers({
-            'Content-Type': 'application/json; charset=UTF-8'
-        })
-    }
-   fetch(uri,fetchData)
-    .then((response) => {
-      return response.json();
-    })
-    .then((data) => {
-    <!-- console.log(data) -->
-    document.getElementById("resolve_ip").innerHTML = data.country + "/" + data.city
-  })
-  .catch(function(error) {
-      console.log(error);
-    });
-}    
-
-
-
-
-function api(endp,key,div) {
-    const hostname = window.location.hostname
-    var uri = "http://" + hostname + "/v1/" + endp
-    <!-- console.log(hostname) -->
-    <!-- console.log(uri) -->
-    let fetchData = {
-        method: 'GET',
-        headers: new Headers({
-            'Content-Type': 'application/json; charset=UTF-8'
-        })
-    }
-   fetch(uri,fetchData)
-    .then((response) => {
-      return response.json();
-    })
-    .then((data) => {
-    console.log(data)
-    if(key==null){ var out = JSON.stringify(data) }
-    else { var out = data[key] }
-    document.getElementById(div).innerHTML = out;
-	if(endp == "publicip/ip") {
-		resolveip()
-	}
-  })
-  .catch(function(error) {
-      console.log(error);
-    });
-}    
-api("openvpn/status","status","openvpn_status")      
-api("publicip/ip","public_ip","openvpn_ip")
-      
-</script>
-
   <div class="container">
-    <div>
-      <label for="openvpn_status" class="lbl">Status</label>
+    <div style="display: inline-flex;">
+      <label for="openvpn_status" class="lbl"><b>Status:</b>&nbsp;</label>
       <div id="openvpn_status">&nbsp;</div>
-    </div>
-    <div>
-      <label for="openvpn_ip" class="lbl">IP</label>
+    </div><br>
+    <div style="display: inline-flex;">
+      <label for="openvpn_ip" class="lbl"><b>IP:</b>&nbsp;</label>
       <div id="openvpn_ip">&nbsp;</div>
-    </div>
+    </div><br>
     <div>
-      <label for="resolve_ip" class="lbl">IP Info</label>
-      <div id="resolve_ip">&nbsp;</div>
-    </div>	
+      <label for="resolve_ip1" class="lbl"><b>IP Info:</b>&nbsp;</label>
+      <div id="resolve_ip1">&nbsp;</div>
+      <div id="resolve_ip2">&nbsp;</div>
+      <div id="resolve_ip3">&nbsp;</div>
+    </div><br>	
+        <script>
+
+function api_get(endp,keys,ids) {
+    const hostname = window.location.hostname
+    var uri = "http://" + hostname + "/v1/" + endp ;
+    let fetchData = {
+        method: 'GET',
+        headers: new Headers({
+            'Content-Type': 'application/json; charset=UTF-8'
+        })
+    }
+   fetch(uri,fetchData)
+    .then((response) => {
+      return response.json();
+    })
+    .then((data) => {
+        if((typeof ids) == "object") {
+            ids.forEach((id,index) => {
+               document.getElementById(id).innerHTML = data[keys[index]];        
+            })
+        } else {
+           document.getElementById(ids).innerHTML = data[keys];
+        }
+    })
+  .catch(function(error) {
+      console.log(error);
+    });
+    
+}
+
+
+
+api_get("publicip/ip",["public_ip","country", "region","organization"],["openvpn_ip","resolve_ip1", "resolve_ip2","resolve_ip3"]) ;
+api_get("openvpn/status","status","openvpn_status") ;
+
+    </script>
     <a target="_blank" href="/web" class="button button-grey" >Plex</a><br>
     <a target="_blank" href="/transmission" class="button button-red" >Transmission</a><br>
     <a target="_blank" href="/sickchill" class="button button-green" >Sickchill</a><br>

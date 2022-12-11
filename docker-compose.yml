@@ -32,7 +32,7 @@ networks:
     ipam:
      driver: default
      config:
-       - subnet: 192.168.8.192/29 #192.168.8.193-198 
+       - subnet: 192.168.8.192/29
     driver_opts:
       com.docker.network.bridge.name: *NET
 
@@ -44,50 +44,53 @@ services:
     container_name: nginx
     environment:
       - SERVERNAME=cinebox.koetsier.dev
-#    ports:
-#      - "80:80/tcp"
     volumes:
       - "./data/config/etc/nginx/cinebox/:/usr/share/nginx/html:ro"
-      #- "./data/config/etc/nginx/nginx.conf:/etc/nginx/nginx.conf:ro"
       - "./data/config/etc/nginx/templates:/etc/nginx/templates"
       - "./data/logs/nginx:/var/log/nginx"
     network_mode: "service:gluetun"
+    depends_on:
+      - "gluetun"
 
 
   gluetun:
     image: qmcgaw/gluetun
     container_name: gluetun
-    # line above must be uncommented to allow 
-    # external containers to connect. See 
-    # https://github.com/qdm12/gluetun/wiki/Connect-a-container-to-gluetun#external-container-to-gluetun
     cap_add:
       - NET_ADMIN
     devices:
       - /dev/net/tun:/dev/net/tun
     ports:
       - 80:80/tcp
-#      - 9900:8000/tcp
-#      - 9901:32400/tcp
-#      - 9902:9091/tcp
-#      - 9903:8081/tcp
-#      - 9904:7878/tcp
-      - 8888:8888/tcp # HTTP proxy
-      - 8388:8388/tcp # Shadowsocks
-      - 8388:8388/udp # Shadowsocks
+      - 32400:32400/tcp
     volumes:
       - ./data/config/etc/gluetun:/gluetun
     environment:
       # See https://github.com/qdm12/gluetun/wiki
+        #openvpn
       - VPN_SERVICE_PROVIDER=nordvpn
       - VPN_TYPE=openvpn
       - SERVER_REGIONS=Germany
-      - HEALTH_VPN_DURATION_ADDITION=30s
-      - TZ=Europe/Amsterdam
+      - HEALTH_VPN_DURATION_ADDITION=15s
+      - UPDATER_PERIOD=24h
+        #firewall
+#     - FIREWALL_OUTBOUND_SUBNETS=<containersSubnet>,<multicast>, <dockerhostSubnet>
+      - FIREWALL_DEBUG=off
+        # DNS over TLS
       - DOT=on
-      - DOT_PROVIDERS=cloudflare
+      - DNS_KEEP_NAMESERVER=on
+      - BLOCK_MALICIOUS=on
+      - BLOCK_SURVEILLANCE=on
+      - BLOCK_ADS=on
+      - DOT_PROVIDERS=cloudflare #cloudflare,google,quad9,quadrant,cleanbrowsing
+        # other
+      - PUBLICIP_PERIOD=3h
+      - TZ=Europe/Amsterdam
     secrets:
       - source: openvpn_user
       - source: openvpn_password
+    networks:
+      - net
 
   debug: #1234
     container_name: debug
@@ -159,13 +162,12 @@ services:
       - UMASK_SET=022 #optional
       - PLEX_CLAIM=/run/secrets/plex_claim #https://plex.tv/claim
     network_mode: "service:gluetun"
-    ports:
-      - 32400:32400
     stdin_open: true
     tty: true
     volumes:
       - "./data/config/etc/plex:/config"
       - "./data/series:/tv"
       - "./data/movies:/movies"
+      - "./data/media:/data"
     secrets:
       - source: plex_claim
