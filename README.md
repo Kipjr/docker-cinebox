@@ -7,9 +7,14 @@ Combined repo of Nginx, Gluetun, SickChill, Radarr & Transmission
 ### Instructions:
 
 - Change docker-compose.yml with your values
-- Run plex container once `docker compose up -d plex` and kill it after 5 min with `docker compose down`.
+- Plex:
+  - Run Plex container once `docker compose up -d` and kill it after 5 min with `docker compose down`.
   - Edit "data/config/etc/plex/Library/Application Support/Plex Media Server/Preferences.xml" and add `allowedNetworks="192.168.0.0/255.255.0.0"`
-- Go to "https://plex.tv/claim" and paste the code in `data/config/secrets/plex_claim`. Save the file.
+  - Go to "https://plex.tv/claim" and paste the code in `data/config/secrets/plex_claim`. Save the file.
+- Emby
+  - Leave as is
+- Edit `data/config/etc/jacket/Jackett/ServerConfig.json`
+  - Modify to `"BasePathOverride": "/jackett"` so `/jackett` works as reverse proxy
 - Run `docker compose up -d --force-recreate` 
 - Go to `http://<dockerHost>:32400` and login / claim the Plex Media Server
 - From now on you should be able to access it using `http://<dockerHost>/web`

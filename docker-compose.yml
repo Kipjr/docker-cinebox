@@ -173,6 +173,8 @@ services:
       - source: plex_claim
     profiles:
       - plex
+
+
   jackett:
     <<: *default-template
     image: lscr.io/linuxserver/jackett:latest
@@ -206,14 +208,10 @@ services:
       - ./data/series:/data/tvshows
       - ./data/movies:/data/movies
 #      - /opt/vc/lib:/opt/vc/lib #optional
-#    ports:
-#      - 8096:8096
-#      - 8920:8920 #optional
 #    devices:
 #      - /dev/dri:/dev/dri #optional
 #      - /dev/vchiq:/dev/vchiq #optional
 #      - /dev/video10:/dev/video10 #optional
 #      - /dev/video11:/dev/video11 #optional
 #      - /dev/video12:/dev/video12 #optional
-#    restart: unless-stopped
 
