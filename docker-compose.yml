@@ -110,10 +110,12 @@ services:
     network_mode: "service:gluetun"
     stdin_open: true
     tty: true
+    environment:
+      - PUID=1000
+      - PGID=1000
     volumes:
       - "./data/config/etc/transmission:/config"
-      - "./data/watch:/watch"
-      - "./data/downloads:/downloads"
+      - "./data/media/downloads:/downloads"
 
   sickchill: #8081
     <<: *default-template
@@ -129,8 +131,8 @@ services:
     tty: true
     volumes:
       - "./data/config/etc/sickchill:/config"
-      - "./data/downloads:/downloads"
-      - "./data/series:/tv"
+      - "./data/media/downloads:/downloads"
+      - "./data/media/series:/tv"
 
   radarr:  #7878
     <<: *default-template
@@ -147,8 +149,8 @@ services:
     tty: true
     volumes:
       - "./data/config/etc/radarr:/config"
-      - "./data/movies:/movies"
-      - "./data/downloads:/downloads"
+      - "./data/media/movies:/movies"
+      - "./data/media/downloads:/downloads"
 
 
   plex: #32400
@@ -166,9 +168,8 @@ services:
     tty: true
     volumes:
       - "./data/config/etc/plex:/config"
-      - "./data/series:/tv"
-      - "./data/movies:/movies"
-      - "./data/media:/data"
+      - "./data/media/series:/tv"
+      - "./data/media/movies:/movies"
     secrets:
       - source: plex_claim
     profiles:
@@ -189,7 +190,7 @@ services:
     network_mode: "service:gluetun"
     volumes:
       - "./data/config/etc/jacket:/config"
-      - "./data/watch:/downloads"
+#      - "./data/media/watch:/downloads"
 #    ports:
 #      - 9117:9117
 #    restart: unless-stopped
@@ -205,8 +206,8 @@ services:
       - TZ=Europe/London
     volumes:
       - ./data/config/etc/emby:/config
-      - ./data/series:/data/tvshows
-      - ./data/movies:/data/movies
+      - ./data/media/series:/data/tvshows
+      - ./data/media/movies:/data/movies
 #      - /opt/vc/lib:/opt/vc/lib #optional
 #    devices:
 #      - /dev/dri:/dev/dri #optional
