@@ -2,45 +2,43 @@
 
 # CineBox
 
-Combined repo of Nginx, Gluetun, SickChill, Radarr & Transmission
+Combined repo of Nginx, Gluetun, Medusa, Radarr, Jackett, Emby and Transmission
 
 ### Instructions:
 
 - Change docker-compose.yml with your values
-- Plex:
-  - Run Plex container once `docker compose up -d` and kill it after 5 min with `docker compose down`.
-  - Edit "data/config/etc/plex/Library/Application Support/Plex Media Server/Preferences.xml" and add `allowedNetworks="192.168.0.0/255.255.0.0"`
-  - Go to "https://plex.tv/claim" and paste the code in `data/config/secrets/plex_claim`. Save the file.
 - Emby
   - Leave as is
-- Edit `data/config/etc/jacket/Jackett/ServerConfig.json`
+- Jackett
+  - Edit `data/config/etc/jacket/Jackett/ServerConfig.json`
   - Modify to `"BasePathOverride": "/jackett"` so `/jackett` works as reverse proxy
+- Medusa
+  - Edit  `data/config/etc/medusa/config.ini`
+  - `web_root=/medusa`
+  - `handle_reverse_proxy = 1`
 - Run `docker compose up -d --force-recreate` 
-- Go to `http://<dockerHost>:32400` and login / claim the Plex Media Server
-- From now on you should be able to access it using `http://<dockerHost>/web`
+- From now on you should be able to access it using `http://<dockerHost>/`
 
 ### Directory Structure:
 
 
 #### Data
 
-- data/movies
-- data/watch
-- data/series
+- data
+  - config
+    - etc
+      - nginx
+      - gluetun
+      - ...
+    - secrets
+  - media
+    - downloads/incomplete
+    - downloads/complete
+    - movies
+    - series
+  - logs
 
-- data/downloads/incomplete
-- data/downloads/complete
 
-#### Credential storage
-- data/config/secrets
-
-#### Container Configuration storage
-- data/config/etc/nginx
-- data/config/etc/transmission
-- data/config/etc/plex
-- data/config/etc/radarr
-- data/config/etc/sickchill
-- data/config/etc/gluetun
 
 #### Test & Debug
 - test/Dockerfile
@@ -84,12 +82,6 @@ using Go, OpenVPN or Wireguard, iptables, DNS over TLS, ShadowSocks and an HTTP 
 ## Setup
 
 Go to the [Wiki](https://github.com/qdm12/gluetun/wiki)!
-
-# SickChill & Radarr & Transmission
-
-Based on linuxserver/IMAGE:latest
-
-- Edit Radarr & Sickchill webroot to /{name_of_container}
 
 # nginx
 
