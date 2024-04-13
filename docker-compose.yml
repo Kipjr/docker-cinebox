@@ -206,7 +206,7 @@ services:
       - PGID=1000
     volumes:
       - ./data/config/etc/medusa:/config
-      - ./data/media/download:/downloads
+      - ./data/media/downloads:/downloads
       - ./data/media/series:/tv
     restart: unless-stopped
 
