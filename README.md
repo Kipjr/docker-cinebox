@@ -2,7 +2,7 @@
 
 # CineBox
 
-Combined repo of Nginx, Gluetun, Medusa, Radarr,J ackett, Emby and Transmission
+Combined repo of Nginx, Gluetun, Medusa, Radarr, Jackett, Emby and Transmission
 
 ### Instructions:
 
