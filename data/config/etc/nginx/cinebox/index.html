@@ -35,6 +35,7 @@ function api_get(endp,keys,ids,method='GET',body=null) {
     var uri = "http://" + hostname + "/v1/" + endp ;
     let fetchData = {
         method: method,
+        body: body,
         headers: new Headers({
             'Content-Type': 'application/json; charset=UTF-8'
         })
@@ -81,7 +82,7 @@ api_get("updater/status","status","updater_status") ;
   <label for="collapsible" class="lbl-toggle button button-grey ">Help</label>
   <div class="collapsible-content">
     <div class="content-inner">
-    <a class="button button-orange" onclick="api_get('updater/status','outcome','updater_status','PUT','{\'status\':\'running\'}') ;">Updater</a>
+    <div class="button" style="width:20%;line-height:3vh;font-size: 2em;" onclick="api_get('updater/status','outcome','updater_status','PUT','{&quot;status&quot;:&quot;running&quot;}');">Updater</div>
       <p>
       Configuration between applications has to be done manually.	
       See <a href="https://github.com/Kipjr/docker-cinebox">Github</a> for more info.
