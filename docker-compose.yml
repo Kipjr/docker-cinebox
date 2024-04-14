@@ -116,8 +116,7 @@ services:
       - PGID=1000
     volumes:
       - "./data/config/etc/transmission:/config"
-      - "./data/media/downloads:/downloads"
-      - "./data/media/downloads/blackhole:/watch"
+      - "./data/media:/media"
 
 
   radarr:  #7878
