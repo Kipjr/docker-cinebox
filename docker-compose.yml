@@ -62,7 +62,7 @@ services:
       - /dev/net/tun:/dev/net/tun
     ports:
       - 80:80/tcp
-      - 32400:32400/tcp
+      - 8096:8096/tcp
     volumes:
       - ./data/config/etc/gluetun:/gluetun
     environment:
@@ -117,6 +117,7 @@ services:
     volumes:
       - "./data/config/etc/transmission:/config"
       - "./data/media/downloads:/downloads"
+      - "./data/media/downloads/blackhole:/watch"
 
 
   radarr:  #7878
@@ -134,8 +135,7 @@ services:
     tty: true
     volumes:
       - "./data/config/etc/radarr:/config"
-      - "./data/media/movies:/movies"
-      - "./data/media/downloads:/downloads"
+      - "./data/media:/media"
 
 
   plex: #32400
@@ -153,8 +153,7 @@ services:
     tty: true
     volumes:
       - "./data/config/etc/plex:/config"
-      - "./data/media/series:/tv"
-      - "./data/media/movies:/movies"
+      - "./data/media:/media"
     secrets:
       - source: plex_claim
     profiles:
@@ -173,7 +172,7 @@ services:
       #- RUN_OPTS=<run options here> #optional
     volumes:
       - "./data/config/etc/jacket:/config"
-#      - "./data/media/watch:/downloads"
+      - "./data/media/downloads/blackhole:/downloads"
 
   emby:
     <<: *default-template
@@ -206,7 +205,6 @@ services:
       - PGID=1000
     volumes:
       - ./data/config/etc/medusa:/config
-      - ./data/media/downloads:/downloads
-      - ./data/media/series:/tv
+      - ./data/media:/media
     restart: unless-stopped
 
