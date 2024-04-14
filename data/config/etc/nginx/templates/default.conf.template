@@ -1,7 +1,7 @@
 server {
     location ~ ^(/|/index.html|/favicon.ico|/style.css)$ {
         root   /usr/share/nginx/html;
-        index  index.html;        
+        index  index.html;
     }
 
     listen       80;
@@ -10,20 +10,16 @@ server {
     access_log  /var/log/nginx/host.access.log;
     error_log  /var/log/nginx/host.error.log  error;
 
-    send_timeout 100m; 
- #   resolver 8.8.4.4 8.8.8.8 valid=300s; 
- #   resolver_timeout 10s;
-    gzip on; 
-    gzip_vary on; 
-    gzip_min_length 1000; 
-    gzip_proxied any; 
-    gzip_types text/plain text/css text/xml application/xml text/javascript application/x-javascript image/svg+xml; 
+    send_timeout 100m;
+    gzip on;
+    gzip_vary on;
+    gzip_min_length 1000;
+    gzip_proxied any;
+    gzip_types text/plain text/css text/xml application/xml text/javascript application/x-javascript image/svg+xml;
     gzip_disable "MSIE [1-6]\.";
     client_max_body_size 100M;
 
-    # error_page  404              /404.html;
-    # redirect server error pages to the static page /50x.html
-    #
+
     error_page   500 502 503 504  /50x.html;
     location = /50x.html {
         root   /usr/share/nginx/html;
@@ -31,98 +27,11 @@ server {
 
     ####
     #
-    # LOCATIONS 
+    # LOCATIONS
     #
     ####
-	
-    # 
-    # Plex
-    #
-    # http://cinebox/plex/web/index.html... -->
-    # http://localhost:32400
-    #     /web/index.html#!/setup/83288c0c
-
-    # *8 open() "/etc/nginx/html/web/js/main-179-4311b1e69996afdff1f5-plex-4.87.2.25887-d04a1ad.js" failed (2: No such file or directory), 
-    # client: 192.168.2.254, 
-    # server: , 
-    # request: "GET /web/js/main-179-4311b1e69996afdff1f5-plex-4.87.2.25887-d04a1ad.js HTTP/1.1", 
-    # host: "cinebox.koetsier.dev", 
-    # referrer: "https://cinebox.koetsier.dev/plex/web/index.html"
 
 
-
-#    location /plex {
-#        proxy_pass http://localhost/web ;
-#    }
-
-#    location /web { location /plex {
-#        #rewrite ^/plex(.*)$ $1 break;
-#        proxy_pass http://localhost:32400 ; 
-#        proxy_redirect off; 
-#        proxy_set_header Host $host; 
-#        proxy_set_header X-Real-IP $remote_addr;
-#        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-#    }
-
-
-
-   
-
-#      proxy_pass         http://localhost:32400 ;
-#      proxy_redirect     off;
-#      proxy_set_header   Host $host;
-#      proxy_set_header X-Real-IP $remote_addr; 
-#      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; 
-
-#	proxy_set_header Upgrade           $http_upgrade;
-#	proxy_set_header Connection        "upgrade";
-#	proxy_set_header X-Forwarded-Proto $scheme;
-#	proxy_set_header X-Forwarded-Host  $host;
-#	proxy_set_header X-Forwarded-Port  $server_port;
-#  }
-	
-#    location ~ ^/plex(?<route>.*) {7
-#        proxy_pass http://localhost/web$route ;
-#    }
-#    if ($http_referer ~* /plex) { rewrite ^/web/(.*) 
-#        /plex/web/$1? redirect;
-#    }
-    
-#    location /plex { 
-#        return 301 $scheme://$host/plex/;
-#    }
-#    location ^~ /plex/ {   
-#       location /web {
-#       location ~ ^/plex(?<pre>/web)?(?<route>/.*)?$ {
-#       rewrite /plex(.*) $1 break;
-#        proxy_pass http://plex_backend$pre$route ;
-#        proxy_pass http://plex_backend ;
-        
-#    location /plex {
-#        #rewrite ^/web(.*)$ /plex/web$route2 ;
-#        proxy_pass http://localhost/web$request_uri ;
-#    }
-
-    location ~ ^/(web|media|identity) {
-        proxy_pass http://localhost:32400 ;
-
-        proxy_set_header Host $host; 
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; 
-        proxy_set_header X-Forwarded-Proto $scheme; 
-        proxy_set_header Sec-WebSocket-Extensions $http_sec_websocket_extensions; 
-        proxy_set_header Sec-WebSocket-Key $http_sec_websocket_key; 
-        proxy_set_header Sec-WebSocket-Version $http_sec_websocket_version;
-
-        proxy_http_version 1.1; 
-        proxy_set_header Upgrade $http_upgrade; 
-        proxy_set_header Connection "Upgrade";
-
-        proxy_set_header Accept-Encoding "";
-        proxy_redirect off; 
-        proxy_buffering off; 
-
-    }
 
     #
     # API
@@ -130,42 +39,29 @@ server {
 
     location /v1 {
         proxy_pass         http://localhost:8000;
-        proxy_redirect     off;
+        proxy_redirect off;
         proxy_set_header   Host $host;
     }
-    
 
-     #
-     # Transmission
-     #
 
-     location /transmission {
-        proxy_pass http://localhost:9091 ; 
-        proxy_redirect off; 
-        proxy_set_header Host $host; 
+    #
+    # Transmission
+    #
+
+    location /transmission {
+        proxy_pass http://localhost:9091 ;
+        proxy_redirect off;
+        proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;     
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     }
 
-     #
-     # Sickchill
-     #
+    #
+    # medusa
+    #
 
-#     location /sickchill {
-#        proxy_pass http://localhost:8081 ; 
-#        proxy_redirect off; 
-#        proxy_set_header Host $host; 
-#        proxy_set_header X-Real-IP $remote_addr;
-#        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;     
-#    }
+    location /medusa {
 
-     #
-     # medusa
-     #
-
-     location /medusa {
-#      location ~ ^/(medusa)/ {
- 
         proxy_pass http://localhost:8081/medusa;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
@@ -175,43 +71,43 @@ server {
         proxy_set_header X-Forwarded-Port 80;
         proxy_set_header X-Forwarded-Proto $scheme;
 
-        # Websocket        
+        # Websocket
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "upgrade";
         proxy_read_timeout 86400;
 
-        
+
     }
 
-     #
-     # Radarr
-     #
+    #
+    # Radarr
+    #
 
-     location /radarr {
-        proxy_pass http://localhost:7878 ; 
-        proxy_redirect off; 
-        proxy_set_header Host $host; 
+    location /radarr {
+        proxy_pass http://localhost:7878 ;
+        proxy_redirect off;
+        proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;     
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
 
-        proxy_http_version 1.1; 
+        proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection $http_connection;
-        
+
     }
 
 
-     #
-     # emby
-     #
+    #
+    # emby
+    #
 
-     location /emby {
-        proxy_pass http://localhost:8096 ; 
-        proxy_redirect off; 
-        proxy_set_header Host $host; 
+    location /emby {
+        proxy_pass http://localhost:8096 ;
+        proxy_redirect off;
+        proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;     
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         # new
         proxy_set_header If-Range $http_if_range;
         proxy_set_header Range $http_range;
@@ -223,11 +119,9 @@ server {
     }
 
 
-        
-
-     #
-     # jackett
-     #
+    #
+    # jackett
+    #
 
     location /jackett/ {
         proxy_pass         http://localhost:9117;
