@@ -70,19 +70,37 @@ api_get("updater/status","status","updater_status") ;
     <!--
     <a id="plex" target="_blank" href="/web" class="button button-grey" >Plex</a><br>
     -->
-    <a id="emby" target="_blank" href="/emby" class="button button-grey" >Emby</a><br>
-    <a id="jackett" target="_blank" href="/jackett" class="button button-orange" >Jackett</a><br>
-    <a id="transmission" target="_blank" href="/transmission" class="button button-red" >Transmission</a><br>
-    <a id="medusa" target="_blank" href="/medusa" class="button button-green" >Medusa</a><br>
-    <a id="radarr" target="_blank" href="/radarr" class="button button-blue" >Radarr</a><br>
-    <br>
+    <a id="emby" target="_blank" href="/emby" class="button button-grey" >
+        Emby
+        <div class="subtitle">Mediaplayer</div>
+    </a><br />
+    <a id="jackett" target="_blank" href="/jackett" class="button button-orange" >
+        Jackett
+        <div class="subtitle">indexer scraping</div>
+    </a><br />
+    <a id="transmission" target="_blank" href="/transmission" class="button button-red" >
+        Transmission
+        <div class="subtitle">Torrent Client</div>
+    </a><br />    
+    <a id="medusa" target="_blank" href="/medusa" class="button button-green" >
+        Medusa
+        <div class="subtitle">TV</div>
+    </a><br />
+    <a id="radarr" target="_blank" href="/radarr" class="button button-blue" >
+        Radarr
+        <div class="subtitle">Movies</div>
+    </a><br />
+    <a id="bazarr" target="_blank" href="/bazarr" class="button button-orange" >
+        Bazarr
+        <div class="subtitle">Subtitles</div>
+    </a><br />
 	
  <div class="wrap-collabsible">
   <input id="collapsible" class="toggle" type="checkbox">
   <label for="collapsible" class="lbl-toggle button button-grey ">Help</label>
   <div class="collapsible-content">
     <div class="content-inner">
-    <div class="button" style="width:20%;line-height:3vh;font-size: 2em;" onclick="api_get('updater/status','outcome','updater_status','PUT','{&quot;status&quot;:&quot;running&quot;}');">Updater</div>
+    <div class="button" style="width:fit-content;line-height:3vh;font-size: 2em;" onclick="api_get('updater/status','outcome','updater_status','PUT','{&quot;status&quot;:&quot;running&quot;}');">Updater</div>
       <p>
       Configuration between applications has to be done manually.	
       See <a href="https://github.com/Kipjr/docker-cinebox">Github</a> for more info.
