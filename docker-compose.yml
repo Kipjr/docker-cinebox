@@ -71,7 +71,7 @@ services:
       - VPN_TYPE=openvpn
       - SERVER_REGIONS=Germany
       - HEALTH_VPN_DURATION_ADDITION=15s
-      - UPDATER_PERIOD=24h
+      - UPDATER_PERIOD=8h
         #firewall
 #     - FIREWALL_OUTBOUND_SUBNETS=<containersSubnet>,<multicast>, <dockerhostSubnet>
       - FIREWALL_DEBUG=off
@@ -185,6 +185,27 @@ services:
       - ./data/media/series:/data/tvshows
       - ./data/media/movies:/data/movies
 #      - /opt/vc/lib:/opt/vc/lib #optional
+#    devices:
+#      - /dev/dri:/dev/dri #optional
+#      - /dev/vchiq:/dev/vchiq #optional
+#      - /dev/video10:/dev/video10 #optional
+#      - /dev/video11:/dev/video11 #optional
+#      - /dev/video12:/dev/video12 #optional
+
+  jellyfin:
+    <<: *default-template
+    image: lscr.io/linuxserver/jellyfin:latest
+    container_name: jellyfin
+    network_mode: "service:gluetun"
+    profiles:
+      - jellyfin
+    environment:
+      - PUID=1000
+      - PGID=1000
+    volumes:
+      - ./data/config/etc/jellyfin:/config
+      - ./data/media/series:/data/tvshows
+      - ./data/media/movies:/data/movies
 #    devices:
 #      - /dev/dri:/dev/dri #optional
 #      - /dev/vchiq:/dev/vchiq #optional
