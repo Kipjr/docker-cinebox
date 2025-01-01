@@ -62,6 +62,7 @@ services:
     ports:
       - 80:80/tcp
       - 8096:8096/tcp
+      - 1900:1900
     volumes:
       - ./data/config/etc/gluetun:/gluetun
     environment:
@@ -101,6 +102,19 @@ services:
     tty: true
     profiles:
     - debug
+
+
+  portical:
+    image: 'ghcr.io/kipjr/docker-portical:latest'
+#    environment:
+#      - "PORTICAL_UPNP_ROOT_URL=http://internal-gateway-ip:5000/somePath.xml"
+    volumes:
+      - '/var/run/docker.sock:/var/run/docker.sock'
+    restart: unless-stopped
+    #network_mode: host
+    command: "/opt/portical/run poll"
+    profiles:
+      - portical
 
 
   transmission: #9091
@@ -198,7 +212,12 @@ services:
     <<: *default-template
     image: lscr.io/linuxserver/jellyfin:latest
     container_name: jellyfin
+    labels:
+      - "portical.upnp.forward=1900:1900"
+#    network_mode: "host"
     network_mode: "service:gluetun"
+#    networks:
+#      - net
     environment:
       - PUID=1000
       - PGID=1000
