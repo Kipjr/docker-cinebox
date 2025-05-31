@@ -1,18 +1,30 @@
 # Jellyfin - 8096
 # Transmission - 9091
-# Medusa - 
+# Medusa - 8081
 # Radar - 7878
 # Bazarr - 6767
+# Jacket - 9117
+#
+
+
+volumes:
+  nginx:
+  transmission:
+  data:
+  jacket:
+  jellyfin:
+  medusa:
+  bazarr:
 
 secrets:
   openvpn_user:
     file: ./data/config/secrets/openvpn_user.cred
   openvpn_password:
     file: ./data/config/secrets/openvpn_password.cred
-  plex_claim:
-    file: ./data/config/secrets/plex_claim
 
 networks:
+  REVERSE_PROXY:
+    external: true
   net: #external / internet
     driver: bridge
     ipam:
@@ -34,6 +46,9 @@ services:
       - "./data/config/etc/nginx/cinebox/:/usr/share/nginx/html:ro"
       - "./data/config/etc/nginx/templates:/etc/nginx/templates"
       - "./data/logs/nginx:/var/log/nginx"
+#     - "log:/var/log"
+#     - "nginx:/etc/nginx"
+#     - "nginx_web:/usr/share/nginx/html:ro"
     network_mode: "service:gluetun"
     depends_on:
       - "gluetun"
@@ -42,43 +57,53 @@ services:
   gluetun:
     image: qmcgaw/gluetun
     container_name: gluetun
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${PROJECT}.rule=Host(`${PROJECT_FQDN}`)"
+      - "traefik.http.routers.${PROJECT}.entrypoints=${PROJECT_ENTRYPOINT}"
     cap_add:
       - NET_ADMIN
     devices:
       - /dev/net/tun:/dev/net/tun
     ports:
-      - 80:80/tcp
+      - 8580:80/tcp
       - 8096:8096/tcp
       - 1900:1900
+#      - 8097:8081
     volumes:
+#      -"gluetun:/gluetun"
       - ./data/config/etc/gluetun:/gluetun
     environment:
-      # See https://github.com/qdm12/gluetun/wiki
-        #openvpn
-      - VPN_SERVICE_PROVIDER=nordvpn
-      - VPN_TYPE=openvpn
-      - SERVER_REGIONS=Germany
-      - HEALTH_VPN_DURATION_ADDITION=15s
-      - UPDATER_PERIOD=8h
-        #firewall
-#     - FIREWALL_OUTBOUND_SUBNETS=<containersSubnet>,<multicast>, <dockerhostSubnet>
-      - FIREWALL_DEBUG=off
-        # DNS over TLS
-      - DOT=on
-      - DNS_KEEP_NAMESERVER=on
-      - BLOCK_MALICIOUS=on
-      - BLOCK_SURVEILLANCE=on
-      - BLOCK_ADS=on
-      - DOT_PROVIDERS=cloudflare #cloudflare,google,quad9,quadrant,cleanbrowsing
-        # other
-      - PUBLICIP_PERIOD=3h
-      - PUBLICIP_API=ipinfo
-      - TZ=Europe/Amsterdam
+    # See https://github.com/qdm12/gluetun/wiki
+    # Openvpn
+      - VPN_SERVICE_PROVIDER=${VPN_SERVICE_PROVIDER}
+      - VPN_TYPE=${VPN_TYPE}
+      - SERVER_COUNTRIES=${SERVER_COUNTRIES}
+    # Healthcheck
+      - HEALTH_VPN_DURATION_ADDITION=${HEALTH_VPN_DURATION_ADDITION:-30s}
+    # Updater
+      - UPDATER_PERIOD=${UPDATER_PERIOD:-8h}
+    # Firewall
+      - FIREWALL_DEBUG=${FIREWALL_DEBUG:-off}
+    # DNS options
+      - DOT=${DOT}
+      - DOT_PROVIDERS=${DOT_PROVIDERS}
+      - DNS_KEEP_NAMESERVER=${DNS_KEEP_NAMESERVER}
+      - BLOCK_MALICIOUS=${BLOCK_MALICIOUS:-on}
+      - BLOCK_SURVEILLANCE=${BLOCK_SURVEILLANCE:-on}
+      - BLOCK_ADS=${BLOCK_ADS:-on}
+    # Other
+      - HTTP_CONTROL_SERVER_AUTH_CONFIG_FILEPATH=${HTTP_CONTROL_SERVER_AUTH_CONFIG_FILEPATH:-/gluetun/config.toml}
+      - PUBLICIP_ENABLED=${PUBLICIP_ENABLED}
+      - PUBLICIP_API=${PUBLICIP_API}
+      - PUBLICIP_API_TOKEN=${PUBLICIP_API_TOKEN}
+      - TZ=${TZ:-Europe/Amsterdam}
     secrets:
       - source: openvpn_user
       - source: openvpn_password
     networks:
       - net
+      - REVERSE_PROXY
 
   debug: #1234
     container_name: debug
@@ -106,7 +131,7 @@ services:
       - portical
 
 
-  transmission: #9091
+  transmission:
     container_name: transmission
     image: linuxserver/transmission:latest
     restart: "unless-stopped"
@@ -114,16 +139,19 @@ services:
     stdin_open: true
     tty: true
     environment:
-      - TZ=Europe/Amsterdam
-      - PUID=1000
-      - PGID=1000
+      - TZ=${TZ:-Europe/Amsterdam}
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
     volumes:
+#     - "transmission:/config"
       - "/etc/localtime:/etc/localtime:ro"
       - "./data/config/etc/transmission:/config"
+#      - "data:/media"
       - "./data/media:/media"
+#    ports:
+#      - 9091:9091
 
-
-  radarr:  #7878
+  radarr:
     container_name: radarr
     image: "linuxserver/radarr:latest"
     restart: "unless-stopped"
@@ -131,8 +159,8 @@ services:
       - transmission
     environment:
       - TZ=Europe/Amsterdam
-      - PUID=1000
-      - PGID=1000
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
       - UMASK_SET=022
     network_mode: "service:gluetun"
     stdin_open: true
@@ -141,31 +169,9 @@ services:
       - "/etc/localtime:/etc/localtime:ro"
       - "./data/config/etc/radarr:/config"
       - "./data/media:/media"
-
-
-  plex: #32400
-    container_name: plex
-    image: linuxserver/plex
-    restart: "unless-stopped"
-    environment:
-      - TZ=Europe/Amsterdam
-      - PUID=1000
-      - PGID=1000
-      - VERSION=docker
-      - UMASK_SET=022 #optional
-      - PLEX_CLAIM=/run/secrets/plex_claim #https://plex.tv/claim
-    network_mode: "service:gluetun"
-    stdin_open: true
-    tty: true
-    volumes:
-      - "/etc/localtime:/etc/localtime:ro"
-      - "./data/config/etc/plex:/config"
-      - "./data/media:/media"
-    secrets:
-      - source: plex_claim
-    profiles:
-      - plex
-
+#     - "radarr:/config"
+#    ports:
+#      - 7878:7878
 
   jackett:
     image: lscr.io/linuxserver/jackett:latest
@@ -173,39 +179,32 @@ services:
     restart: "unless-stopped"
     network_mode: "service:gluetun"
     environment:
-      - TZ=Europe/Amsterdam
-      - PUID=1000
-      - PGID=1000
-      - AUTO_UPDATE=true #optional 
-      #- RUN_OPTS=<run options here> #optional
+      - TZ=${TZ:-Europe/Amsterdam}
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - AUTO_UPDATE=true
     volumes:
       - "/etc/localtime:/etc/localtime:ro"
+#      - "jacket:/config"
       - "./data/config/etc/jacket:/config"
       - "./data/media/downloads/blackhole:/downloads"
+#    ports:
+#      - 9117:9117
 
-  emby:
-    image: lscr.io/linuxserver/emby:latest
-    container_name: emby
+
+  flaresolverr:
+    image: ghcr.io/flaresolverr/flaresolverr:latest
+    container_name: flaresolverr
     restart: "unless-stopped"
+    depends_on: 
+      - jackett
     network_mode: "service:gluetun"
-    profiles:
-      - emby
     environment:
-      - TZ=Europe/Amsterdam
-      - PUID=1000
-      - PGID=1000
-    volumes:
-      - "/etc/localtime:/etc/localtime:ro"
-      - ./data/config/etc/emby:/config
-      - ./data/media/series:/data/tvshows
-      - ./data/media/movies:/data/movies
-#      - /opt/vc/lib:/opt/vc/lib #optional
-#    devices:
-#      - /dev/dri:/dev/dri #optional
-#      - /dev/vchiq:/dev/vchiq #optional
-#      - /dev/video10:/dev/video10 #optional
-#      - /dev/video11:/dev/video11 #optional
-#      - /dev/video12:/dev/video12 #optional
+      - LOG_LEVEL=${LOG_LEVEL:-debug}
+      - LOG_HTML=${LOG_HTML:-false}
+      - TZ=${TZ:-Europe/Amsterdam}
+#   ports:
+#     - 8191:8191
 
   jellyfin:
     image: lscr.io/linuxserver/jellyfin:latest
@@ -218,11 +217,12 @@ services:
 #    networks:
 #      - net
     environment:
-      - TZ=Europe/Amsterdam
-      - PUID=1000
-      - PGID=1000
+      - TZ=${TZ:-Europe/Amsterdam}
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
     volumes:
       - "/etc/localtime:/etc/localtime:ro"
+#      - "jellyfin:/config"
       - ./data/config/etc/jellyfin:/config
       - ./data/media/series:/data/tvshows
       - ./data/media/movies:/data/movies
@@ -232,22 +232,26 @@ services:
 #      - /dev/video10:/dev/video10 #optional
 #      - /dev/video11:/dev/video11 #optional
 #      - /dev/video12:/dev/video12 #optional
-
+#    ports:
+#      - 8096:8096
 
   medusa:
-    image: lscr.io/linuxserver/medusa:latest
+#    image: lscr.io/linuxserver/medusa:latest
+    image: pymedusa/medusa
     container_name: medusa
     restart: "unless-stopped"
     network_mode: "service:gluetun"
     environment:
-      - TZ=Europe/Amsterdam
-      - PUID=1000
-      - PGID=1000
+      - TZ=${TZ:-Europe/Amsterdam}
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
     volumes:
       - "/etc/localtime:/etc/localtime:ro"
+#      - "medusa:/config"
       - ./data/config/etc/medusa:/config
       - ./data/media:/media
-
+#    ports:
+#      - 8081:8081
 
   bazarr: 
     image: lscr.io/linuxserver/bazarr:latest
@@ -255,11 +259,12 @@ services:
     restart: "unless-stopped"
     network_mode: "service:gluetun"
     environment:
-      - TZ=Europe/Amsterdam
-      - PUID=1000
-      - PGID=1000
+      - TZ=${TZ:-Europe/Amsterdam}
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
     volumes: 
       - "/etc/localtime:/etc/localtime:ro"
+#      - "bazarr:/config"
       - ./data/config/etc/bazarr:/config
       - ./data/media:/media
 #    ports: 
