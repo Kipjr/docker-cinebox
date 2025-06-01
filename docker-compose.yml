@@ -59,6 +59,7 @@ services:
     container_name: gluetun
     labels:
       - "traefik.enable=true"
+      - "traefik.http.routers.${PROJECT}.tls=true"
       - "traefik.http.routers.${PROJECT}.rule=Host(`${PROJECT_FQDN}`)"
       - "traefik.http.routers.${PROJECT}.entrypoints=${PROJECT_ENTRYPOINT}"
     cap_add:
