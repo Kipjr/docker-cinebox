@@ -1,0 +1,81 @@
+name: Update Environment in README
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the main branch
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4    
+      - name: set up git
+        shell: pwsh
+        run: |
+          git config user.email ${{github.actor}}@users.noreply.github.com
+          git config user.name ${{github.actor}}
+  
+      - name: Update README.md
+        shell: pwsh
+        run: |
+          $readme = get-content "README.md"
+          $dockercompose = get-content "docker-compose.yml"
+          $env = get-content ".env.example" | Foreach-Object { $_.split("=")[0] } | Sort-Object -Unique # all .env.example environments
+
+          $line_start = $readme | select-string -Pattern '__ACTION_DYNAMIC_ENV_START__' | Select-Object -expandproperty LineNumber
+          $readme_start = $readme[0..$($line_start-1)]
+          echo "::debug::readme_start: $readme_start"
+          $line_stop = $readme | select-string -Pattern '__ACTION_DYNAMIC_ENV_STOP__' | Select-Object -expandproperty LineNumber
+          $readme_end = $readme[($line_stop-1) .. $($readme.count)]
+          echo "::debug::readme_end: $readme_end"
+
+          [string]$environment_string=@"
+          
+          | **Environment** | **Default value** |
+          |-----------------|-------------------|
+          
+          "@
+
+          $pattern = '\$\{(?<var>[A-Za-z_][A-Za-z0-9_]*)(:-(?<default>[^}]*))?\}'
+          
+          # all docker-compose.yml variables
+          $environments = [regex]::Matches($dockercompose, $pattern) | Sort-Object -Unique |ForEach-Object {
+              [PSCustomObject]@{
+                  Name  = $_.Groups['var'].Value
+                  Default = if ($_.Groups['default'].Success) { $_.Groups['default'].Value } else { $null }
+              }   
+          }
+          $environments | foreach-object {
+             $environment_string += "| $($_.Name)             | $($_.Default)               |`n"
+          }
+          $new_readme = $readme_start + $environment_string + $readme_end
+          echo "::debug::new_readme: $new_readme"
+          $new_readme | out-file -filepath "README.md"
+          
+          $compare = compare-object -ReferenceObject $environments.Name -DifferenceObject $env
+          $missingEnvironments = $compare | where-Object {$_.SideIndicator -eq '=>'} | Select-Object -ExpandProperty InputObject
+          $missingEnv = $compare | Where-Object {$_.SideIndicator -eq '<='} | Select-Object -ExpandProperty InputObject
+          if($missingEnvironments.length -gt 0) {
+            echo "::warning file=docker-compose.yml,title=Missing environment variables::$($missingEnvironments|Out-String)"
+          }
+          if($missingEnv.length -gt 0) {
+            echo "::warning file=.env.example,title=Missing environment variables::$($missingEnv|Out-String)"
+          }
+
+          
+      - name: Push README.md
+        shell: pwsh
+        run: |
+          git add "README.md"
+          git commit -m "Update Readme.md by environment vars in docker-compose.yml"
+          git push
