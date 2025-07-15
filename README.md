@@ -19,6 +19,12 @@ Combined repo of Nginx, Gluetun, Medusa, Radarr, Jackett, Emby and Transmission
 - Run `docker compose up -d --force-recreate` 
 - From now on you should be able to access it using `http://<dockerHost>/`
 
+### Environment
+
+<!--__ACTION_DYNAMIC_ENV_START__-->
+
+<!--__ACTION_DYNAMIC_ENV_STOP__-->
+
 ### Directory Structure:
 
 
