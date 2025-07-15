@@ -37,6 +37,7 @@ function api_get(endp,keys,ids,method='GET',body=null) {
         method: method,
         body: body,
         headers: new Headers({
+            'X-API-Key': '97WbD8xqseLnFkVtWYqvRK',
             'Content-Type': 'application/json; charset=UTF-8'
         })
     }
@@ -60,7 +61,6 @@ function api_get(endp,keys,ids,method='GET',body=null) {
 }
 
 
-
 api_get("publicip/ip",["public_ip","country", "region","organization"],["openvpn_ip","resolve_ip1", "resolve_ip2","resolve_ip3"]) ;
 api_get("openvpn/status","status","openvpn_status") ;
 api_get("updater/status","status","updater_status") ;
@@ -68,10 +68,10 @@ api_get("updater/status","status","updater_status") ;
 
 </script>
     <!--
-    <a id="plex" target="_blank" href="/web" class="button button-grey" >Plex</a><br>
+    <a id="name" target="_blank" href="/path" class="button button-grey" >DisplayName</a><br>
     -->
-    <a id="emby" target="_blank" href="/emby" class="button button-grey" >
-        Emby
+    <a id="jellyfin" target="_blank" href="/jellyfin" class="button button-grey" >
+        Jellyfin
         <div class="subtitle">Mediaplayer</div>
     </a><br />
     <a id="jackett" target="_blank" href="/jackett" class="button button-orange" >
