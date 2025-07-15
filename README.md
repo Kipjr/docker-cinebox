@@ -23,6 +23,33 @@ Combined repo of Nginx, Gluetun, Medusa, Radarr, Jackett, Emby and Transmission
 
 <!--__ACTION_DYNAMIC_ENV_START__-->
 
+| **Environment** | **Default value** |
+|-----------------|-------------------|
+| BLOCK_ADS             | on               |
+| BLOCK_MALICIOUS             | on               |
+| BLOCK_SURVEILLANCE             | on               |
+| DNS_KEEP_NAMESERVER             |                |
+| DOT_PROVIDERS             |                |
+| DOT             |                |
+| FIREWALL_DEBUG             | off               |
+| HEALTH_VPN_DURATION_ADDITION             | 30s               |
+| HTTP_CONTROL_SERVER_AUTH_CONFIG_FILEPATH             | /gluetun/config.toml               |
+| LOG_HTML             | false               |
+| LOG_LEVEL             | debug               |
+| PGID             | 1000               |
+| PROJECT_ENTRYPOINT             |                |
+| PROJECT_FQDN             |                |
+| PROJECT             |                |
+| PUBLICIP_API_TOKEN             |                |
+| PUBLICIP_API             |                |
+| PUBLICIP_ENABLED             |                |
+| PUID             | 1000               |
+| SERVER_COUNTRIES             |                |
+| TZ             | Europe/Amsterdam               |
+| UPDATER_PERIOD             | 8h               |
+| VPN_SERVICE_PROVIDER             |                |
+| VPN_TYPE             |                |
+
 <!--__ACTION_DYNAMIC_ENV_STOP__-->
 
 ### Directory Structure:
