@@ -39,8 +39,8 @@ services:
     image: nginx:stable-alpine
     container_name: nginx
     environment:
-      - TZ=Europe/Amsterdam
-      - SERVERNAME=cinebox.koetsier.dev
+      - TZ=${TZ:-Europe/Amsterdam}
+      - SERVERNAME=${PROJECT_FQDN}
     volumes:
       - "/etc/localtime:/etc/localtime:ro"
       - "./data/config/etc/nginx/cinebox/:/usr/share/nginx/html:ro"
