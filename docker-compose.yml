@@ -6,21 +6,24 @@
 # Jacket - 9117
 #
 
-
-volumes:
-  nginx:
-  transmission:
-  data:
-  jacket:
-  jellyfin:
-  medusa:
-  bazarr:
-
 secrets:
   openvpn_user:
     file: ./data/config/secrets/openvpn_user.cred
   openvpn_password:
     file: ./data/config/secrets/openvpn_password.cred
+
+volumes:
+  secrets:
+  gluetun:
+  nginx:
+  jellyfin:
+  transmission:
+  radarr:
+  jacket:
+  medusa:
+  bazarr:
+  ${MEDIA_LOCATION}:
+    external: true
 
 networks:
   REVERSE_PROXY:
@@ -30,36 +33,17 @@ networks:
     ipam:
      driver: default
      config:
-       - subnet: 192.168.8.192/29
+       - subnet: "${PROJECT_SUBNET}"
     driver_opts:
       com.docker.network.bridge.name: cinebox_net
 
 services:
-  nginx:
-    image: nginx:stable-alpine
-    container_name: nginx
-    environment:
-      - TZ=${TZ:-Europe/Amsterdam}
-      - SERVERNAME=${PROJECT_FQDN}
-    volumes:
-      - "/etc/localtime:/etc/localtime:ro"
-      - "./data/config/etc/nginx/cinebox/:/usr/share/nginx/html:ro"
-      - "./data/config/etc/nginx/templates:/etc/nginx/templates"
-      - "./data/logs/nginx:/var/log/nginx"
-#     - "log:/var/log"
-#     - "nginx:/etc/nginx"
-#     - "nginx_web:/usr/share/nginx/html:ro"
-    network_mode: "service:gluetun"
-    depends_on:
-      - "gluetun"
-
-
   gluetun:
     image: qmcgaw/gluetun
     container_name: gluetun
+    restart: "unless-stopped"
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.${PROJECT}.tls=true"
       - "traefik.http.routers.${PROJECT}.rule=Host(`${PROJECT_FQDN}`)"
       - "traefik.http.routers.${PROJECT}.entrypoints=${PROJECT_ENTRYPOINT}"
     cap_add:
@@ -70,10 +54,8 @@ services:
       - 8580:80/tcp
       - 8096:8096/tcp
       - 1900:1900
-#      - 8097:8081
     volumes:
-#      -"gluetun:/gluetun"
-      - ./data/config/etc/gluetun:/gluetun
+      - gluetun:/gluetun
     environment:
     # See https://github.com/qdm12/gluetun/wiki
     # Openvpn
@@ -116,21 +98,56 @@ services:
     profiles:
     - debug
 
-
-  portical:
-    image: "ghcr.io/kipjr/docker-portical:latest"
-#    environment:
-#      - "PORTICAL_UPNP_ROOT_URL=http://internal-gateway-ip:5000/somePath.xml"
+  nginx:
+    image: nginx:stable-alpine
+    container_name: nginx
+    restart: "unless-stopped"
+    network_mode: "service:gluetun"
+    depends_on:
+      - "gluetun"
+    environment:
+      - TZ=Europe/Amsterdam
+      - SERVERNAME=${PROJECT_FQDN}
     volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock"
-    restart: unless-stopped
-    #network_mode: host
-    command: "/opt/portical/run poll"
-    networks:
-      - net
-    profiles:
-      - portical
+      - type: volume
+        source: nginx
+        target: /usr/share/nginx/html
+        volume:
+          subpath: cinebox
+      - type: volume
+        source: nginx
+        target: /etc/nginx/templates
+        volume:
+          subpath: templates
+      - type: volume
+        source: nginx
+        target: /var/log/nginx
+        volume:
+          subpath: log
 
+  jellyfin:
+    image: lscr.io/linuxserver/jellyfin:latest
+    container_name: jellyfin
+    restart: "unless-stopped"
+    network_mode: "service:gluetun"
+    environment:
+      - TZ=${TZ:-Europe/Amsterdam}
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+    depends_on:
+      - "nginx"
+    volumes:
+      - "jellyfin:/config"
+      - type: volume
+        source: "${MEDIA_LOCATION}"
+        target: /data/tvshows
+        volume:
+          subpath: series
+      - type: volume
+        source: "${MEDIA_LOCATION}"
+        target: /data/movies
+        volume:
+          subpath: movies
 
   transmission:
     container_name: transmission
@@ -143,20 +160,18 @@ services:
       - TZ=${TZ:-Europe/Amsterdam}
       - PUID=${PUID:-1000}
       - PGID=${PGID:-1000}
+    depends_on:
+      - "gluetun"
     volumes:
-#     - "transmission:/config"
-      - "/etc/localtime:/etc/localtime:ro"
-      - "./data/config/etc/transmission:/config"
-#      - "data:/media"
-      - "./data/media:/media"
-#    ports:
-#      - 9091:9091
+      - "transmission:/config"
+      - "${MEDIA_LOCATION}:/media"
 
   radarr:
     container_name: radarr
     image: "linuxserver/radarr:latest"
     restart: "unless-stopped"
     depends_on:
+      - gluetun
       - transmission
     environment:
       - TZ=Europe/Amsterdam
@@ -167,12 +182,8 @@ services:
     stdin_open: true
     tty: true
     volumes:
-      - "/etc/localtime:/etc/localtime:ro"
-      - "./data/config/etc/radarr:/config"
-      - "./data/media:/media"
-#     - "radarr:/config"
-#    ports:
-#      - 7878:7878
+      - "radarr:/config"
+      - "${MEDIA_LOCATION}:/media"
 
   jackett:
     image: lscr.io/linuxserver/jackett:latest
@@ -184,60 +195,29 @@ services:
       - PUID=${PUID:-1000}
       - PGID=${PGID:-1000}
       - AUTO_UPDATE=true
+    depends_on:
+      - gluetun
     volumes:
-      - "/etc/localtime:/etc/localtime:ro"
-#      - "jacket:/config"
-      - "./data/config/etc/jacket:/config"
-      - "./data/media/downloads/blackhole:/downloads"
-#    ports:
-#      - 9117:9117
-
+      - "jacket:/config"
+      - type: volume
+        source: "${MEDIA_LOCATION}"
+        target: /downloads
+        volume:
+          subpath: "downloads/blackhole"
 
   flaresolverr:
     image: ghcr.io/flaresolverr/flaresolverr:latest
     container_name: flaresolverr
     restart: "unless-stopped"
-    depends_on: 
+    depends_on:
       - jackett
     network_mode: "service:gluetun"
     environment:
       - LOG_LEVEL=${LOG_LEVEL:-debug}
       - LOG_HTML=${LOG_HTML:-false}
       - TZ=${TZ:-Europe/Amsterdam}
-#   ports:
-#     - 8191:8191
-
-  jellyfin:
-    image: lscr.io/linuxserver/jellyfin:latest
-    container_name: jellyfin
-    restart: "unless-stopped"
-    labels:
-      - "portical.upnp.forward=1900:1900"
-#    network_mode: "host"
-    network_mode: "service:gluetun"
-#    networks:
-#      - net
-    environment:
-      - TZ=${TZ:-Europe/Amsterdam}
-      - PUID=${PUID:-1000}
-      - PGID=${PGID:-1000}
-    volumes:
-      - "/etc/localtime:/etc/localtime:ro"
-#      - "jellyfin:/config"
-      - ./data/config/etc/jellyfin:/config
-      - ./data/media/series:/data/tvshows
-      - ./data/media/movies:/data/movies
-#    devices:
-#      - /dev/dri:/dev/dri #optional
-#      - /dev/vchiq:/dev/vchiq #optional
-#      - /dev/video10:/dev/video10 #optional
-#      - /dev/video11:/dev/video11 #optional
-#      - /dev/video12:/dev/video12 #optional
-#    ports:
-#      - 8096:8096
 
   medusa:
-#    image: lscr.io/linuxserver/medusa:latest
     image: pymedusa/medusa
     container_name: medusa
     restart: "unless-stopped"
@@ -246,27 +226,25 @@ services:
       - TZ=${TZ:-Europe/Amsterdam}
       - PUID=${PUID:-1000}
       - PGID=${PGID:-1000}
+    depends_on:
+      - gluetun
+      - transmission
     volumes:
-      - "/etc/localtime:/etc/localtime:ro"
-#      - "medusa:/config"
-      - ./data/config/etc/medusa:/config
-      - ./data/media:/media
-#    ports:
-#      - 8081:8081
+      - "medusa:/config"
+      - "${MEDIA_LOCATION}:/media"
 
-  bazarr: 
+  bazarr:
     image: lscr.io/linuxserver/bazarr:latest
     container_name: bazarr
     restart: "unless-stopped"
     network_mode: "service:gluetun"
+    depends_on:
+      - gluetun
+      - radarr
     environment:
       - TZ=${TZ:-Europe/Amsterdam}
       - PUID=${PUID:-1000}
       - PGID=${PGID:-1000}
-    volumes: 
-      - "/etc/localtime:/etc/localtime:ro"
-#      - "bazarr:/config"
-      - ./data/config/etc/bazarr:/config
-      - ./data/media:/media
-#    ports: 
-#      - 6767:6767
+    volumes:
+      - "bazarr:/config"
+      - "${MEDIA_LOCATION}:/media"
