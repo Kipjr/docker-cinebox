@@ -22,7 +22,7 @@ volumes:
   jacket:
   medusa:
   bazarr:
-  ${MEDIA_LOCATION}:
+  media:
     external: true
 
 networks:
@@ -164,7 +164,7 @@ services:
       - "gluetun"
     volumes:
       - "transmission:/config"
-      - "${MEDIA_LOCATION}:/media"
+      - "media:/media"
 
   radarr:
     container_name: radarr
@@ -183,7 +183,7 @@ services:
     tty: true
     volumes:
       - "radarr:/config"
-      - "${MEDIA_LOCATION}:/media"
+      - "media:/media"
 
   jackett:
     image: lscr.io/linuxserver/jackett:latest
@@ -231,7 +231,7 @@ services:
       - transmission
     volumes:
       - "medusa:/config"
-      - "${MEDIA_LOCATION}:/media"
+      - "media:/media"
 
   bazarr:
     image: lscr.io/linuxserver/bazarr:latest
@@ -247,4 +247,4 @@ services:
       - PGID=${PGID:-1000}
     volumes:
       - "bazarr:/config"
-      - "${MEDIA_LOCATION}:/media"
+      - "media:/media"
