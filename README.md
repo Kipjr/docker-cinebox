@@ -38,8 +38,15 @@ Combined repo of Nginx, Gluetun, Medusa, Radarr, Jackett, Emby and Transmission
 | LOG_LEVEL             | debug               |
 | MEDIA_LOCATION             |                |
 | PGID             | 1000               |
+| PROJECT_ACCESSLOGS_HA             |                |
+| PROJECT_DOMAIN_MAIN             |                |
+| PROJECT_DOMAIN_SANS             |                |
 | PROJECT_ENTRYPOINT             |                |
 | PROJECT_FQDN             |                |
+| PROJECT_MIDDLEWARES             |                |
+| PROJECT_NETWORK_NAME             |                |
+| PROJECT_PORT             | 80               |
+| PROJECT_SCHEME             | http               |
 | PROJECT_SUBNET             |                |
 | PROJECT             |                |
 | PUBLICIP_API_TOKEN             |                |
