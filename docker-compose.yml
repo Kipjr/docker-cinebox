@@ -17,6 +17,7 @@ volumes:
   secrets:
   gluetun:
   nginx:
+  traefik:
   jellyfin:
   transmission:
   radarr:
@@ -143,6 +144,17 @@ services:
     container_name: jellyfin
     restart: "unless-stopped"
     network_mode: "service:gluetun"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=${PROJECT_NETWORK_NAME}"
+      - "traefik.http.routers.${PROJECT}.tls=true"
+      - "traefik.http.routers.${PROJECT}.rule=Host(`${FQDN_HA}`)"
+      - "traefik.http.routers.${PROJECT}.entrypoints=${PROJECT_ENTRYPOINT}"
+      - "traefik.http.routers.${PROJECT}.tls.domains[0].main=${PROJECT_DOMAIN_MAIN}"
+      - "traefik.http.routers.${PROJECT}.tls.domains[0].sans=${PROJECT_DOMAIN_SANS}"
+      - "traefik.http.routers.${PROJECT}.middlewares=${PROJECT_MIDDLEWARES}"
+      - "traefik.http.services.${PROJECT}.loadbalancer.server.scheme=${PROJECT_SCHEME:-http}"
+      - "traefik.http.services.${PROJECT}.loadbalancer.server.port=${PORT_JELLYFIN}"
     environment:
       - TZ=${TZ:-Europe/Amsterdam}
       - PUID=${PUID:-1000}
@@ -167,6 +179,17 @@ services:
     image: linuxserver/transmission:latest
     restart: "unless-stopped"
     network_mode: "service:gluetun"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=${PROJECT_NETWORK_NAME}"
+      - "traefik.http.routers.${PROJECT}.tls=true"
+      - "traefik.http.routers.${PROJECT}.rule=Host(`${FQDN_HA}`)"
+      - "traefik.http.routers.${PROJECT}.entrypoints=${PROJECT_ENTRYPOINT}"
+      - "traefik.http.routers.${PROJECT}.tls.domains[0].main=${PROJECT_DOMAIN_MAIN}"
+      - "traefik.http.routers.${PROJECT}.tls.domains[0].sans=${PROJECT_DOMAIN_SANS}"
+      - "traefik.http.routers.${PROJECT}.middlewares=${PROJECT_MIDDLEWARES}"
+      - "traefik.http.services.${PROJECT}.loadbalancer.server.scheme=${PROJECT_SCHEME:-http}"
+      - "traefik.http.services.${PROJECT}.loadbalancer.server.port=${PORT_TRANSMISSION}"
     stdin_open: true
     tty: true
     environment:
@@ -183,6 +206,17 @@ services:
     container_name: radarr
     image: "linuxserver/radarr:latest"
     restart: "unless-stopped"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=${PROJECT_NETWORK_NAME}"
+      - "traefik.http.routers.${PROJECT}.tls=true"
+      - "traefik.http.routers.${PROJECT}.rule=Host(`${FQDN_HA}`)"
+      - "traefik.http.routers.${PROJECT}.entrypoints=${PROJECT_ENTRYPOINT}"
+      - "traefik.http.routers.${PROJECT}.tls.domains[0].main=${PROJECT_DOMAIN_MAIN}"
+      - "traefik.http.routers.${PROJECT}.tls.domains[0].sans=${PROJECT_DOMAIN_SANS}"
+      - "traefik.http.routers.${PROJECT}.middlewares=${PROJECT_MIDDLEWARES}"
+      - "traefik.http.services.${PROJECT}.loadbalancer.server.scheme=${PROJECT_SCHEME:-http}"
+      - "traefik.http.services.${PROJECT}.loadbalancer.server.port=${PORT_RADARR}"
     depends_on:
       - gluetun
       - transmission
@@ -203,6 +237,17 @@ services:
     container_name: jackett
     restart: "unless-stopped"
     network_mode: "service:gluetun"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=${PROJECT_NETWORK_NAME}"
+      - "traefik.http.routers.${PROJECT}.tls=true"
+      - "traefik.http.routers.${PROJECT}.rule=Host(`${FQDN_HA}`)"
+      - "traefik.http.routers.${PROJECT}.entrypoints=${PROJECT_ENTRYPOINT}"
+      - "traefik.http.routers.${PROJECT}.tls.domains[0].main=${PROJECT_DOMAIN_MAIN}"
+      - "traefik.http.routers.${PROJECT}.tls.domains[0].sans=${PROJECT_DOMAIN_SANS}"
+      - "traefik.http.routers.${PROJECT}.middlewares=${PROJECT_MIDDLEWARES}"
+      - "traefik.http.services.${PROJECT}.loadbalancer.server.scheme=${PROJECT_SCHEME:-http}"
+      - "traefik.http.services.${PROJECT}.loadbalancer.server.port=${PORT_HOMEASSISTANT}"
     environment:
       - TZ=${TZ:-Europe/Amsterdam}
       - PUID=${PUID:-1000}
@@ -235,6 +280,17 @@ services:
     container_name: medusa
     restart: "unless-stopped"
     network_mode: "service:gluetun"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=${PROJECT_NETWORK_NAME}"
+      - "traefik.http.routers.${PROJECT}.tls=true"
+      - "traefik.http.routers.${PROJECT}.rule=Host(`${FQDN_HA}`)"
+      - "traefik.http.routers.${PROJECT}.entrypoints=${PROJECT_ENTRYPOINT}"
+      - "traefik.http.routers.${PROJECT}.tls.domains[0].main=${PROJECT_DOMAIN_MAIN}"
+      - "traefik.http.routers.${PROJECT}.tls.domains[0].sans=${PROJECT_DOMAIN_SANS}"
+      - "traefik.http.routers.${PROJECT}.middlewares=${PROJECT_MIDDLEWARES}"
+      - "traefik.http.services.${PROJECT}.loadbalancer.server.scheme=${PROJECT_SCHEME:-http}"
+      - "traefik.http.services.${PROJECT}.loadbalancer.server.port=${PORT_MEDUSA}"
     environment:
       - TZ=${TZ:-Europe/Amsterdam}
       - PUID=${PUID:-1000}
@@ -251,6 +307,17 @@ services:
     container_name: bazarr
     restart: "unless-stopped"
     network_mode: "service:gluetun"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=${PROJECT_NETWORK_NAME}"
+      - "traefik.http.routers.${PROJECT}.tls=true"
+      - "traefik.http.routers.${PROJECT}.rule=Host(`${FQDN_HA}`)"
+      - "traefik.http.routers.${PROJECT}.entrypoints=${PROJECT_ENTRYPOINT}"
+      - "traefik.http.routers.${PROJECT}.tls.domains[0].main=${PROJECT_DOMAIN_MAIN}"
+      - "traefik.http.routers.${PROJECT}.tls.domains[0].sans=${PROJECT_DOMAIN_SANS}"
+      - "traefik.http.routers.${PROJECT}.middlewares=${PROJECT_MIDDLEWARES}"
+      - "traefik.http.services.${PROJECT}.loadbalancer.server.scheme=${PROJECT_SCHEME:-http}"
+      - "traefik.http.services.${PROJECT}.loadbalancer.server.port=${PORT_BAZARR}"
     depends_on:
       - gluetun
       - radarr
@@ -261,3 +328,36 @@ services:
     volumes:
       - "bazarr:/config"
       - "media:/media"
+
+
+  traefik:
+    image: traefik:latest
+    container_name: cinebox.traefik
+    hostname: traefik
+    network_mode: "service:gluetun"
+    environment:
+      TZ: "Europe/Amsterdam"
+    restart: "always"
+    command:
+      - "--log.level=TRACE"
+      - "--accesslog=true"
+      - "--accesslog.filepath=/etc/traefik/traefik.log"
+      - "--accessLog.bufferingSize=100"
+      - "--api=false"
+      - "--api.insecure=true"
+      - "--api.dashboard=true"
+      - "--api.disabledashboardad=true"
+      - "--serverstransport.insecureskipverify=true"
+      - "--providers.docker=false"
+      - "--providers.docker.useBindPortIP=false"
+      - "--providers.docker.exposedByDefault=false"
+      - "--providers.file.filename=/etc/traefik/dynamic_config.yml"
+      - "--providers.file.watch=true"
+      - "--entrypoints.web.address=:80"
+  #  ports:
+#      - "80:80"
+#      - "81:8080" # Enable the dashboard on port 8080
+    volumes:
+      - "config:/etc/traefik"
+
+
