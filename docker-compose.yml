@@ -46,7 +46,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=${PROJECT_NETWORK_NAME}"
-      - "traefik.http.routers.${PROJECT}.tls=true
+      - "traefik.http.routers.${PROJECT}.tls=true"
       - "traefik.http.routers.${PROJECT}.rule=Host(`${PROJECT_FQDN}`)"
       - "traefik.http.routers.${PROJECT}.entrypoints=${PROJECT_ENTRYPOINT}"
       - "traefik.http.routers.${PROJECT}.tls.domains[0].main=${PROJECT_DOMAIN_MAIN}"
