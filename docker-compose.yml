@@ -1,3 +1,4 @@
+---
 # Jellyfin - 8096
 # Transmission - 9091
 # Medusa - 8081
@@ -31,9 +32,9 @@ networks:
   net: #external / internet
     driver: bridge
     ipam:
-     driver: default
-     config:
-       - subnet: "${PROJECT_SUBNET}"
+      driver: default
+      config:
+        - subnet: "${PROJECT_SUBNET}"
     driver_opts:
       com.docker.network.bridge.name: cinebox_net
 
@@ -108,7 +109,7 @@ services:
     stdin_open: true
     tty: true
     profiles:
-    - debug
+      - debug
 
   nginx:
     image: nginx:stable-alpine
