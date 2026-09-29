@@ -1,0 +1,78 @@
+---
+
+http:
+  routers:
+    gluetun-api:
+      entryPoints: [web]
+      rule: "PathPrefix(`/v1/`)"
+      priority: 100
+      service: gluetun-api
+    jellyfin:
+      entryPoints: [web]
+      rule: "Path(`/jellyfin`) || PathPrefix(`/jellyfin/`)"
+      priority: 100
+      service: jellyfin
+    transmission:
+      entryPoints: [web]
+      rule: "Path(`/transmission`) || PathPrefix(`/transmission/`)"
+      priority: 100
+      service: transmission
+    radarr:
+      entryPoints: [web]
+      rule: "Path(`/radarr`) || PathPrefix(`/radarr/`)"
+      priority: 100
+      service: radarr
+    medusa:
+      entryPoints: [web]
+      rule: "Path(`/medusa`) || PathPrefix(`/medusa/`)"
+      priority: 100
+      service: medusa
+    bazarr:
+      entryPoints: [web]
+      rule: "Path(`/bazarr`) || PathPrefix(`/bazarr/`)"
+      priority: 100
+      service: bazarr
+    jackett:
+      entryPoints: [web]
+      rule: "Path(`/jackett`) || PathPrefix(`/jackett/`)"
+      priority: 100
+      service: jackett
+    nginx:
+      entryPoints: [web]
+      rule: "PathPrefix(`/`)"
+      priority: 1
+      service: nginx
+
+  services:
+    gluetun-api:
+      loadBalancer:
+        servers:
+          - url: "http://127.0.0.1:8000"
+    jellyfin:
+      loadBalancer:
+        servers:
+          - url: "http://127.0.0.1:8096"
+    transmission:
+      loadBalancer:
+        servers:
+          - url: "http://127.0.0.1:9091"
+    radarr:
+      loadBalancer:
+        servers:
+          - url: "http://127.0.0.1:7878"
+    medusa:
+      loadBalancer:
+        servers:
+          - url: "http://127.0.0.1:8081"
+    bazarr:
+      loadBalancer:
+        servers:
+          - url: "http://127.0.0.1:6767"
+    jackett:
+      loadBalancer:
+        servers:
+          - url: "http://127.0.0.1:9117"
+    nginx:
+      loadBalancer:
+        servers:
+          - url: "http://127.0.0.1:8088"
