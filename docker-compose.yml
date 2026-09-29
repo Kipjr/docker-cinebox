@@ -1,3 +1,4 @@
+---
 # Jellyfin - 8096
 # Transmission - 9091
 # Medusa - 8081
@@ -22,7 +23,7 @@ volumes:
   jacket:
   medusa:
   bazarr:
-  ${MEDIA_LOCATION}:
+  media:
     external: true
 
 networks:
@@ -31,9 +32,9 @@ networks:
   net: #external / internet
     driver: bridge
     ipam:
-     driver: default
-     config:
-       - subnet: "${PROJECT_SUBNET}"
+      driver: default
+      config:
+        - subnet: "${PROJECT_SUBNET}"
     driver_opts:
       com.docker.network.bridge.name: cinebox_net
 
@@ -44,8 +45,20 @@ services:
     restart: "unless-stopped"
     labels:
       - "traefik.enable=true"
+      - "traefik.docker.network=${PROJECT_NETWORK_NAME}"
+      - "traefik.http.routers.${PROJECT}.tls=true"
       - "traefik.http.routers.${PROJECT}.rule=Host(`${PROJECT_FQDN}`)"
       - "traefik.http.routers.${PROJECT}.entrypoints=${PROJECT_ENTRYPOINT}"
+      - "traefik.http.routers.${PROJECT}.tls.domains[0].main=${PROJECT_DOMAIN_MAIN}"
+      - "traefik.http.routers.${PROJECT}.tls.domains[0].sans=${PROJECT_DOMAIN_SANS}"
+      - "traefik.http.routers.${PROJECT}.middlewares=${PROJECT_MIDDLEWARES}"
+      - "traefik.http.routers.${PROJECT}.observability.accessLogs=${PROJECT_ACCESSLOGS_HA}"
+      - "traefik.http.services.${PROJECT}.loadbalancer.server.scheme=${PROJECT_SCHEME:-http}"
+      - "traefik.http.services.${PROJECT}.loadbalancer.server.port=${PROJECT_PORT:-80}"
+      - "traefik.http.services.${PROJECT}.loadBalancer.healthcheck.path=/"
+      - "traefik.http.services.${PROJECT}.loadBalancer.healthcheck.interval=300s"
+      - "traefik.http.services.${PROJECT}.loadBalancer.healthcheck.timeout=5s"
+      - "traefik.http.services.${PROJECT}.loadBalancer.passHostHeader=true"     
     cap_add:
       - NET_ADMIN
     devices:
@@ -96,7 +109,7 @@ services:
     stdin_open: true
     tty: true
     profiles:
-    - debug
+      - debug
 
   nginx:
     image: nginx:stable-alpine
@@ -164,7 +177,7 @@ services:
       - "gluetun"
     volumes:
       - "transmission:/config"
-      - "${MEDIA_LOCATION}:/media"
+      - "media:/media"
 
   radarr:
     container_name: radarr
@@ -183,7 +196,7 @@ services:
     tty: true
     volumes:
       - "radarr:/config"
-      - "${MEDIA_LOCATION}:/media"
+      - "media:/media"
 
   jackett:
     image: lscr.io/linuxserver/jackett:latest
@@ -231,7 +244,7 @@ services:
       - transmission
     volumes:
       - "medusa:/config"
-      - "${MEDIA_LOCATION}:/media"
+      - "media:/media"
 
   bazarr:
     image: lscr.io/linuxserver/bazarr:latest
@@ -247,4 +260,4 @@ services:
       - PGID=${PGID:-1000}
     volumes:
       - "bazarr:/config"
-      - "${MEDIA_LOCATION}:/media"
+      - "media:/media"
