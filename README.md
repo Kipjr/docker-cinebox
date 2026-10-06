@@ -32,13 +32,15 @@ Combined repo of Nginx, Gluetun, Medusa, Radarr, Jackett, Emby and Transmission
 | DOT_PROVIDERS             |                |
 | DOT             |                |
 | FIREWALL_DEBUG             | off               |
+| FIREWALL_INPUT_PORTS             | 80               |
 | HEALTH_VPN_DURATION_ADDITION             | 30s               |
+| HOST_PORT_HTTP             | 80               |
 | HTTP_CONTROL_SERVER_AUTH_CONFIG_FILEPATH             | /gluetun/config.toml               |
 | LOG_HTML             | false               |
 | LOG_LEVEL             | debug               |
 | MEDIA_LOCATION             |                |
 | PGID             | 1000               |
-| PROJECT_ACCESSLOGS_HA             |                |
+| PROJECT_ACCESSLOGS_GLUETUN             |                |
 | PROJECT_DOMAIN_MAIN             |                |
 | PROJECT_DOMAIN_SANS             |                |
 | PROJECT_ENTRYPOINT             |                |
@@ -54,6 +56,8 @@ Combined repo of Nginx, Gluetun, Medusa, Radarr, Jackett, Emby and Transmission
 | PUBLICIP_ENABLED             |                |
 | PUID             | 1000               |
 | SERVER_COUNTRIES             |                |
+| TRAEFIK_LOG_LEVEL             | INFO               |
+| TRUSTED_PROXY_IPS             | 10.0.0.0/8,172.16.0.0/12,192.168.0.0/16               |
 | TZ             | Europe/Amsterdam               |
 | UPDATER_PERIOD             | 8h               |
 | VPN_SERVICE_PROVIDER             |                |
