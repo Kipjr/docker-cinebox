@@ -233,6 +233,8 @@ services:
       - LOG_LEVEL=${LOG_LEVEL:-debug}
       - LOG_HTML=${LOG_HTML:-false}
       - TZ=${TZ:-Europe/Amsterdam}
+  tmpfs:
+      - /tmp:size=256M,mode=1777
 
   medusa:
     image: pymedusa/medusa
