@@ -24,6 +24,7 @@ volumes:
   nginx:
   traefik:
   jellyfin:
+  seerr:
   transmission:
   radarr:
   jacket:
@@ -165,6 +166,28 @@ services:
         target: /data/movies
         volume:
           subpath: movies
+  seerr:
+    image: ghcr.io/seerr-team/seerr:latest
+    init: true
+    container_name: seerr
+    restart: "unless-stopped"
+    network_mode: "service:gluetun"
+    environment:
+      - LOG_LEVEL=debug
+      - TZ=${TZ:-Europe/Amsterdam}
+      - PORT=5055 #optional
+#    ports:
+#      - 5055:5055
+    volumes:
+      - seerr:/app/config
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://localhost:5055/api/v1/status || exit 1
+      start_period: 20s
+      timeout: 3s
+      interval: 15s
+      retries: 3
+    depends_on:
+      - "jellyfin"
 
   transmission:
     container_name: transmission
