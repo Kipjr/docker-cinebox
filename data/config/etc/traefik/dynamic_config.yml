@@ -12,6 +12,11 @@ http:
       rule: "Path(`/jellyfin`) || PathPrefix(`/jellyfin/`)"
       priority: 100
       service: jellyfin
+    seerr:
+      entryPoints: [web]
+      rule: "Path(`/seerr`) || PathPrefix(`/seerr/`)"
+      priority: 100
+      service: seerr
     transmission:
       entryPoints: [web]
       rule: "Path(`/transmission`) || PathPrefix(`/transmission/`)"
@@ -52,6 +57,10 @@ http:
       loadBalancer:
         servers:
           - url: "http://127.0.0.1:8096"
+    seerr:
+      loadBalancer:
+        servers:
+          - url: "http://127.0.0.1:5055"
     transmission:
       loadBalancer:
         servers:
