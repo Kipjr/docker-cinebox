@@ -32,7 +32,8 @@
 
 function api_get(endp,keys,ids,method='GET',body=null) {
     const hostname = window.location.hostname
-    var uri = "http://" + hostname + "/v1/" + endp ;
+	const scheme = window.location.protocol
+    var uri = scheme + "//" + hostname + "/v1/" + endp ;
     let fetchData = {
         method: method,
         body: body,
